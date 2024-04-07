@@ -1,4 +1,4 @@
-ratio=0.2
+ratio=0.5
 t5_ratio=$ratio
 vit_ratio=$ratio
 

@@ -37,6 +37,7 @@ kl_weight = float(sys.argv[5])
 instruct = sys.argv[9]
 model_size = sys.argv[10]
 tune_opt = sys.argv[13]
+lora_r_v, lora_r_l, lora_r_q = sys.argv[14], sys.argv[15], sys.argv[16]
 
 
 task = "okvqa_zeroshot_flant5xl_eval"
@@ -68,7 +69,7 @@ max_train_samples = int(sys.argv[8])
 
 job_id = f"{pretrain}-{pruner}_{kl_weight}_{t5_ratio}_{vit_ratio}" if prune_n==0 else f"{pretrain}-{pruner}_{kl_weight}_{prune_n}:{prune_m}"
 job_id = job_id + "_" + tune_opt + "_" + remain_grads + "_" + \
-            str(int(max_train_samples))
+            str(int(max_train_samples)) + f"_{lora_r_v}_{lora_r_l}_{lora_r_q}"
 
 program = (
     f"python -m torch.distributed.run"
@@ -88,6 +89,8 @@ program = (
     f" --initial_method {initial_method}"
     f" --prune" 
     f" --train"
+    f" --sparse"
+    f" --lora_r_v {lora_r_v} --lora_r_l {lora_r_l} --lora_r_q {lora_r_q}"
     f" --num_data {num_data}"
     f" --prune_m {prune_m} --prune_n {prune_n}"
     f" --model_size {model_size}"

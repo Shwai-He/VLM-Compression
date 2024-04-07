@@ -1,6 +1,5 @@
 import subprocess
 import random
-
 import sys
 
 GPU = sys.argv[1]
@@ -24,8 +23,6 @@ pretrain="continue_stage2_vicuna_instruct"
 t5_ratio = float(sys.argv[3])
 vit_ratio = float(sys.argv[4])
 kl_weight = float(sys.argv[5])
-
-tune_opt = "LV"
 tune_opt = sys.argv[11]
 
 t5_ratios = f"{t5_ratio}-1.0-1.0"

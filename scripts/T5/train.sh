@@ -13,8 +13,11 @@ prune_m=0
 #prune_n=4
 #prune_m=8
 
-max_train_samples=25000
+lora_r_v=4
+lora_r_l=8
+lora_r_q=2
 
+max_train_samples=25000
 instruct=false
 instruct=true
 model_size=xl
@@ -22,5 +25,5 @@ pruner=wanda
 cc3m=false
 
 cd ./LAVIS
-python ./scripts/T5/train.py 0,1 12344 $t5_ratio $vit_ratio $kl_weight $prune_n $prune_m $max_train_samples $instruct $model_size $pruner $cc3m $tune_opt
-python ./scripts/T5/evaluate.py 0,1 12344 $t5_ratio $vit_ratio $kl_weight $prune_n $prune_m $max_train_samples $instruct $model_size $pruner $cc3m $tune_opt
+python ./scripts/T5/train.py 0,1 12344 $t5_ratio $vit_ratio $kl_weight $prune_n $prune_m $max_train_samples $instruct $model_size $pruner $cc3m $tune_opt $lora_r_v $lora_r_l $lora_r_q
+python ./scripts/T5/evaluate.py 0,1 12344 $t5_ratio $vit_ratio $kl_weight $prune_n $prune_m $max_train_samples $instruct $model_size $pruner $cc3m $tune_opt $lora_r_v $lora_r_l $lora_r_q
