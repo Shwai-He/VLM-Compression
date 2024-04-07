@@ -27,10 +27,10 @@ The "Prune and then RESSA" paradigm demonstrates substantial improvements for sp
 ## Requirements
 pip install -r requirements
 
-### Dataset
+## Dataset
 Follow the scripts in `lavis/datasets/download_scripts/` to download the datasets.
 
-### Scripts
+## Scripts
 ```bash
 ## InstructBLIP-FlanT5-XL experiments 
 
