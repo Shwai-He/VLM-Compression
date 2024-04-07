@@ -1,6 +1,6 @@
 # RESSA: Repair Sparse Vision-Language Models via Sparse Cross-Modality Adaptation
-<font size=4>This is the official repository for [**RESSA**](https://arxiv.org/abs/2404.02424).  
-<font size=4>[Shwai He](https://shwai-he.github.io/), [Tianlong Chen](https://tianlong-chen.github.io/)</font>
+<font size=5>This is the official repository for [**RESSA**](https://arxiv.org/abs/2404.02424). </font>  
+<font size=5>[Shwai He](https://shwai-he.github.io/), [Tianlong Chen](https://tianlong-chen.github.io/)</font>
 
 
 Vision-Language Models (VLMs) encompass models from different modalities, namely vision and language. In this study, we initially investigate the allocation of sparsity ratios across these diverse models.
