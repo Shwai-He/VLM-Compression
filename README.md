@@ -1,6 +1,7 @@
-# Rethinking Pruning for Vision-Language Models: Strategies for Effective Sparsity and Performance Restoration
-<font size=5>This is the official repository. </font>  
-<font size=5>[Shwai He](https://shwai-he.github.io/), [Ang Li](https://www.ang-li.com/), [Tianlong Chen](https://tianlong-chen.github.io/)</font>
+## Rethinking Pruning for Vision-Language Models: Strategies for Effective Sparsity and Performance Restoration ##
+**This is the official repository of the paper [Rethinking Pruning for Vision-Language Models: Strategies for Effective Sparsity and Performance Restoration
+](https://arxiv.org/abs/2404.02424v2).**   
+**[Shwai He](https://shwai-he.github.io/), [Ang Li](https://www.ang-li.com/), [Tianlong Chen](https://tianlong-chen.github.io/)**
 
 
 Vision-Language Models (VLMs) encompass models from different modalities, namely vision and language. In this study, we initially investigate the allocation of sparsity ratios across these diverse models.
