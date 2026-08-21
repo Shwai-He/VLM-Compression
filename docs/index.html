@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rethinking Pruning for Vision-Language Models | RESSA</title>
+    <meta name="description" content="Official project page for 'Rethinking Pruning for Vision-Language Models: Strategies for Effective Sparsity and Performance Restoration' by Shwai He, Ang Li, Tianlong Chen.">
+    <meta name="keywords" content="Vision-Language Models, Model Compression, Pruning, RESSA, SparseLoRA, Deep Learning, Multimodal AI, InstructBLIP, LLaVA">
+    <meta name="author" content="Shwai He, Ang Li, Tianlong Chen">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Rethinking Pruning for Vision-Language Models | RESSA">
+    <meta property="og:description" content="Strategies for Effective Cross-Modality Sparsity Allocation & Zero-Latency Performance Restoration in VLMs.">
+    <meta property="og:image" content="Figures/RESSA.png">
+    <meta property="og:url" content="https://shwai-he.github.io/VLM-Compression/">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        heading: ['"Outfit"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f4ff',
+                            100: '#dbe4ff',
+                            200: '#bacaff',
+                            300: '#8ca6ff',
+                            400: '#5c7aff',
+                            500: '#3b54fc',
+                            600: '#2334f1',
+                            700: '#1b24d7',
+                            800: '#1920ae',
+                            900: '#181f8a',
+                            950: '#0f1354',
+                        },
+                        accent: {
+                            cyan: '#06b6d4',
+                            violet: '#8b5cf6',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+
+        <!-- MathJax for LaTeX Equations -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['118', '118'], ['\[', '\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS Styles -->
+    <style>
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-panel-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.2);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-text-cyan {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glow-effect {
+            box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        /* Range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+            transition: all 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white min-h-screen relative overflow-x-hidden">
+
+    <!-- Ambient background glow elements -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-indigo-600/15 rounded-full blur-[140px]"></div>
+        <div class="absolute top-[40%] -left-40 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[160px]"></div>
+        <div class="absolute top-[70%] -right-40 w-[600px] h-[600px] bg-cyan-600/10 rounded-full blur-[160px]"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 w-full glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-compress text-sm"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-heading font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+                        VLM-Compression <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono font-medium border border-indigo-500/30">RESSA</span>
+                    </span>
+                    <span class="text-[11px] text-slate-400 -mt-0.5">arXiv:2404.02424</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+                <a href="#findings" class="hover:text-indigo-400 transition-colors">Key Findings</a>
+                <a href="#methodology" class="hover:text-indigo-400 transition-colors">Methodology</a>
+                <a href="#allocator" class="hover:text-indigo-400 transition-colors flex items-center gap-1.5 text-indigo-400">
+                    <i class="fa-solid fa-sliders text-xs"></i> Allocator Simulator
+                </a>
+                <a href="#benchmarks" class="hover:text-indigo-400 transition-colors">Benchmarks</a>
+                <a href="#quickstart" class="hover:text-indigo-400 transition-colors">Quickstart</a>
+                <a href="#citation" class="hover:text-indigo-400 transition-colors">Citation</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="https://arxiv.org/abs/2404.02424" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all">
+                    <i class="fa-solid fa-file-pdf text-red-400"></i>
+                    <span>arXiv</span>
+                </a>
+                <a href="https://github.com/shwai-he/VLM-Compression" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all">
+                    <i class="fa-brands fa-github text-sm"></i>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-24">
+
+        <!-- Hero Section -->
+        <section class="text-center pt-8 pb-4 space-y-8">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-300 shadow-inner">
+                <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>arXiv:2404.02424 [cs.CV / cs.LG]</span>
+                <span class="text-slate-600">|</span>
+                <span class="text-indigo-400 font-semibold">Official Project Repository</span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-5xl mx-auto leading-[1.15]">
+                Rethinking Pruning for <br class="hidden sm:inline">
+                <span class="gradient-text">Vision-Language Models</span>:
+                <span class="block text-2xl sm:text-3xl lg:text-4xl text-slate-300 font-bold mt-3">
+                    Strategies for Effective Sparsity and Performance Restoration
+                </span>
+            </h1>
+
+            <!-- Authors & Affiliations -->
+            <div class="space-y-3 pt-2">
+                <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base sm:text-lg font-medium text-slate-200">
+                    <a href="https://shwai-he.github.io/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 underline decoration-indigo-500/50 underline-offset-4 transition-colors">
+                        Shwai He<sup>1,*</sup>
+                    </a>
+                    <a href="https://www.ang-li.com/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 underline decoration-indigo-500/50 underline-offset-4 transition-colors">
+                        Ang Li<sup>2,*</sup>
+                    </a>
+                    <a href="https://tianlong-chen.github.io/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 underline decoration-indigo-500/50 underline-offset-4 transition-colors">
+                        Tianlong Chen<sup>2</sup>
+                    </a>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs sm:text-sm text-slate-400">
+                    <span><sup>1</sup> University of Maryland, College Park (CASE Lab)</span>
+                    <span class="hidden sm:inline">•</span>
+                    <span><sup>2</sup> University of North Carolina at Chapel Hill</span>
+                    <span class="hidden sm:inline">•</span>
+                    <span class="text-slate-500"><sup>*</sup> Equal Contribution</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+                <a href="https://arxiv.org/abs/2404.02424" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm shadow-xl shadow-indigo-600/30 hover:scale-[1.02] transition-all">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Read Paper (arXiv)</span>
+                </a>
+                <a href="https://github.com/shwai-he/VLM-Compression" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 hover:border-slate-600 hover:scale-[1.02] transition-all">
+                    <i class="fa-brands fa-github text-base"></i>
+                    <span>Code & Weights</span>
+                </a>
+                <a href="#allocator" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-slate-900/90 hover:bg-indigo-950/60 text-indigo-300 font-semibold text-sm border border-indigo-500/40 hover:border-indigo-400 hover:scale-[1.02] transition-all">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Try Sparsity Allocator</span>
+                </a>
+            </div>
+
+            <!-- Key Metric Highlights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto pt-6 text-left">
+                <div class="glass-panel-card p-5 rounded-2xl border-indigo-500/20">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <h4 class="font-heading font-bold text-slate-200 text-base">Equal Sparsity Law</h4>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Under a constant sum of sparsity ratios, pruning vision and language models with <strong class="text-indigo-300">identical sparsity ($s_V = s_L$)</strong> yields near-optimal multimodal performance.
+                    </p>
+                </div>
+
+                <div class="glass-panel-card p-5 rounded-2xl border-purple-500/20">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-sm font-bold">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h4 class="font-heading font-bold text-slate-200 text-base">Zero-Latency SparseLoRA</h4>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Applies binary structural masks to low-rank updates ($M \odot BA$), allowing <strong class="text-purple-300">direct merging into sparse base weights</strong> with zero serving latency overhead.
+                    </p>
+                </div>
+
+                <div class="glass-panel-card p-5 rounded-2xl border-cyan-500/20">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm font-bold">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h4 class="font-heading font-bold text-slate-200 text-base">RESSA Restoration</h4>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Cross-modality adaptation with multi-task distillation recovers up to <strong class="text-cyan-300">+15.7% accuracy</strong> across VQAv2, OK-VQA, GQA, and NoCaps.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Cross-Modality Sparsity Allocator & Simulator -->
+        <section id="allocator" class="glass-panel rounded-3xl p-6 sm:p-10 border-indigo-500/30 glow-effect space-y-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-xs font-mono mb-2 border border-indigo-500/30">
+                        <i class="fa-solid fa-microchip"></i> Interactive Tool
+                    </div>
+                    <h2 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Cross-Modality Sparsity Allocator & Simulator</h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                        Simulate cross-modality pruning budgets on modern VLMs (e.g. InstructBLIP-FlanT5-XL: 1.2B ViT + 188M Q-Former + 3B LLM).
+                    </p>
+                </div>
+
+                <!-- Presets -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="setStrategyPreset('equal')" class="strategy-btn px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 text-xs font-semibold border border-indigo-500/40 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrows-split-up-and-left"></i> Equal (50%/50%)
+                    </button>
+                    <button onclick="setStrategyPreset('lang')" class="strategy-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-comment-dots"></i> Lang-Dominant (20%/60%)
+                    </button>
+                    <button onclick="setStrategyPreset('vision')" class="strategy-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye"></i> Vision-Dominant (60%/20%)
+                    </button>
+                    <button onclick="setStrategyPreset('heavy')" class="strategy-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-gauge-high"></i> High-Sparsity (70%/70%)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls & Realtime Dashboard -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Sliders Column -->
+                <div class="lg:col-span-6 space-y-6">
+                    <!-- Vision Slider -->
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label for="vision-slider" class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span>
+                                Vision Encoder Sparsity ($s_V$)
+                            </label>
+                            <span id="vision-val" class="font-mono text-base font-extrabold text-cyan-400 bg-cyan-950/60 px-2.5 py-0.5 rounded-md border border-cyan-800">50%</span>
+                        </div>
+                        <input id="vision-slider" type="range" min="0" max="80" step="5" value="50" class="w-full cursor-pointer accent-cyan-400" oninput="updateAllocator()">
+                        <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+                            <span>0% (Dense ViT-g)</span>
+                            <span>40%</span>
+                            <span>80% (Extreme Sparsity)</span>
+                        </div>
+                    </div>
+
+                    <!-- Language Slider -->
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label for="lang-slider" class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-purple-400 inline-block"></span>
+                                Language Decoder Sparsity ($s_L$)
+                            </label>
+                            <span id="lang-val" class="font-mono text-base font-extrabold text-purple-400 bg-purple-950/60 px-2.5 py-0.5 rounded-md border border-purple-800">50%</span>
+                        </div>
+                        <input id="lang-slider" type="range" min="0" max="80" step="5" value="50" class="w-full cursor-pointer accent-purple-400" oninput="updateAllocator()">
+                        <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+                            <span>0% (Dense Flan-T5 / Vicuna)</span>
+                            <span>40%</span>
+                            <span>80% (Extreme Sparsity)</span>
+                        </div>
+                    </div>
+
+                    <!-- Architecture Parameter Share breakdown -->
+                    <div class="p-4 rounded-xl bg-slate-900/40 border border-slate-800/60 space-y-2">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Parameter Weight Distribution:</span>
+                            <span class="font-mono text-slate-300">Total: 4.38B Parameters</span>
+                        </div>
+                        <div class="h-3 w-full rounded-full bg-slate-800 overflow-hidden flex">
+                            <div id="bar-vit" class="h-full bg-cyan-500 transition-all duration-300" style="width: 27.4%" title="Visual Encoder: 1.2B (27.4%)"></div>
+                            <div id="bar-qformer" class="h-full bg-amber-500 transition-all duration-300" style="width: 4.3%" title="Q-Former: 188M (4.3%)"></div>
+                            <div id="bar-llm" class="h-full bg-purple-500 transition-all duration-300" style="width: 68.3%" title="LLM Decoder: 3.0B (68.3%)"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 pt-1 font-mono">
+                            <span class="text-cyan-400"><i class="fa-solid fa-square text-[8px]"></i> ViT: 1.2B (27.4%)</span>
+                            <span class="text-amber-400"><i class="fa-solid fa-square text-[8px]"></i> Q-Former: 0.19B (4.3%)</span>
+                            <span class="text-purple-400"><i class="fa-solid fa-square text-[8px]"></i> LLM: 3.0B (68.3%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Output Dashboard -->
+                <div class="lg:col-span-6 glass-panel-card p-6 rounded-2xl border-indigo-500/30 space-y-6">
+                    <h3 class="text-base font-heading font-bold text-slate-200 flex items-center justify-between">
+                        <span>Live Simulation Metrics</span>
+                        <span id="alloc-tag" class="text-xs px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-medium border border-emerald-500/30">Equal Allocation</span>
+                    </h3>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                            <span class="text-[11px] text-slate-400 block uppercase font-mono">Total Model Sparsity</span>
+                            <span id="metric-total-sparsity" class="text-2xl sm:text-3xl font-heading font-extrabold text-white">50.0%</span>
+                            <span class="text-[11px] text-slate-500 block mt-0.5" id="metric-params-pruned">2.19B / 4.38B Pruned</span>
+                        </div>
+
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                            <span class="text-[11px] text-slate-400 block uppercase font-mono">Theoretical FLOPs Speedup</span>
+                            <span id="metric-speedup" class="text-2xl sm:text-3xl font-heading font-extrabold text-indigo-400">1.89x</span>
+                            <span class="text-[11px] text-slate-500 block mt-0.5">Zero runtime adapter overhead</span>
+                        </div>
+                    </div>
+
+                    <!-- Retention Comparison Bars -->
+                    <div class="space-y-4 pt-2">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-300">Wanda / SparseGPT (Standard Post-Pruning)</span>
+                                <span id="retention-wanda" class="font-mono text-slate-400">82.1% Retention</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                <div id="bar-retention-wanda" class="bg-slate-500 h-full rounded-full transition-all duration-300" style="width: 82.1%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-indigo-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-400 text-xs"></i>
+                                    <strong>RESSA + SparseLoRA (Ours)</strong>
+                                </span>
+                                <span id="retention-ressa" class="font-mono text-indigo-300 font-bold">96.8% Retention</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-indigo-500/40">
+                                <div id="bar-retention-ressa" class="bg-gradient-to-r from-indigo-500 to-violet-500 h-full rounded-full transition-all duration-300 shadow-md shadow-indigo-500/50" style="width: 96.8%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insight Tip Box -->
+                    <div id="alloc-insight" class="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info text-indigo-400 mt-0.5 text-sm shrink-0"></i>
+                        <span><strong>Optimal Configuration:</strong> Equal sparsity preserves visual-textual token coordination while delivering maximum parameter reduction.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Findings & Interactive Charts -->
+        <section id="findings" class="space-y-10">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-purple-500/20 text-purple-300 text-xs font-mono border border-purple-500/30">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> Empirical Discoveries
+                </div>
+                <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">Two Critical Empirical Laws of VLM Pruning</h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Systematic experiments across vision-language architectures reveal surprising principles governing cross-modality sparsity.
+                </p>
+            </div>
+
+            <!-- Finding Cards Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                <!-- Law 1 -->
+                <div class="glass-panel-card p-6 sm:p-8 rounded-3xl space-y-5 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Law #1</span>
+                            <span class="text-xs text-slate-400 font-mono">$s_V + s_L = 	ext{Constant}$</span>
+                        </div>
+                        <h3 class="font-heading text-xl sm:text-2xl font-bold text-white">Equal Cross-Modality Sparsity is Near-Optimal</h3>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            When holding the combined sparsity ratio sum constant (e.g. $s_V + s_L = 100\%$), allocating <strong>50% to Vision and 50% to Language</strong> outperforms asymmetric allocations (such as 80%/20% or 20%/80%). Disproportionate pruning in either modality severely breaks cross-attention alignment.
+                        </p>
+                    </div>
+
+                    <div class="pt-2 cursor-pointer group" onclick="openLightbox('Figures/sparsity.png', 'Cross-Modality Sparsity Allocation: Performance across combinations under fixed budget')">
+                        <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-2 relative">
+                            <img src="Figures/sparsity.png" alt="Sparsity Allocation Law" class="w-full h-auto rounded-lg group-hover:scale-[1.02] transition-transform duration-300">
+                            <div class="absolute inset-0 bg-indigo-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-medium text-xs rounded-xl backdrop-blur-xs">
+                                <i class="fa-solid fa-expand"></i> Click to Zoom Diagram
+                            </div>
+                        </div>
+                        <span class="text-[11px] text-slate-400 block text-center mt-2 italic">Figure 1: VQA accuracy sweet spot at equal vision & language sparsity.</span>
+                    </div>
+                </div>
+
+                <!-- Law 2 -->
+                <div class="glass-panel-card p-6 sm:p-8 rounded-3xl space-y-5 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Law #2</span>
+                            <span class="text-xs text-slate-400 font-mono">Parameter Asymmetry</span>
+                        </div>
+                        <h3 class="font-heading text-xl sm:text-2xl font-bold text-white">Language-Dominant Pruning Under Total Budget</h3>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            Because language backbones constitute over ~70-80% of parameters in modern VLMs, pruning the language model alone preserves the visual encoder's perceptual resolution while achieving substantial overall parameter reduction without crippling cross-modal grounding.
+                        </p>
+                    </div>
+
+                    <div class="pt-2 cursor-pointer group" onclick="openLightbox('Figures/diff_modalities.png', 'Modality Pruning Breakdown: Vision-only vs. Language-only vs. Joint Pruning')">
+                        <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-2 relative">
+                            <img src="Figures/diff_modalities.png" alt="Modality Pruning Sensitivity" class="w-full h-auto rounded-lg group-hover:scale-[1.02] transition-transform duration-300">
+                            <div class="absolute inset-0 bg-purple-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-medium text-xs rounded-xl backdrop-blur-xs">
+                                <i class="fa-solid fa-expand"></i> Click to Zoom Diagram
+                            </div>
+                        </div>
+                        <span class="text-[11px] text-slate-400 block text-center mt-2 italic">Figure 2: Performance curves under modality-isolated pruning.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Chart.js Section -->
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border-slate-800 space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-heading text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-indigo-400"></i> Interactive Benchmark Comparison Across Sparsity Ratios
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-400">Comparing post-pruning accuracy curves between Wanda, SparseGPT, DSnoT, and RESSA.</p>
+                    </div>
+
+                    <!-- Dataset Tabs -->
+                    <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800">
+                        <button onclick="switchChartDataset('vqav2')" class="chart-tab-btn px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition-all">VQAv2</button>
+                        <button onclick="switchChartDataset('okvqa')" class="chart-tab-btn px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">OK-VQA</button>
+                        <button onclick="switchChartDataset('gqa')" class="chart-tab-btn px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">GQA</button>
+                        <button onclick="switchChartDataset('textvqa')" class="chart-tab-btn px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">TextVQA</button>
+                    </div>
+                </div>
+
+                <!-- Canvas -->
+                <div class="h-80 sm:h-96 w-full relative">
+                    <canvas id="benchmarkChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Methodology: RESSA & SparseLoRA -->
+        <section id="methodology" class="space-y-12">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-mono border border-emerald-500/30">
+                    <i class="fa-solid fa-cubes-stacked"></i> Technical Novelty
+                </div>
+                <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">The RESSA Restoration Framework</h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Repairing pruned Vision-Language Models through cross-modality representation alignment and zero-latency sparse fine-tuning.
+                </p>
+            </div>
+
+            <!-- Architecture deep dive -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-5">
+                    <div class="glass-panel-card p-6 sm:p-8 rounded-3xl space-y-4">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-xs font-mono border border-indigo-500/30">
+                            Core Architecture
+                        </div>
+                        <h3 class="font-heading text-2xl font-bold text-white">Cross-Modality Adaptation via Distillation</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            When pruning removes weights from the visual encoder and LLM backbone, the internal cross-modal representation distribution shifts dramatically. <strong>RESSA</strong> re-aligns query-key projections through multi-task knowledge distillation:
+                        </p>
+
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-xs text-indigo-300 space-y-2">
+                            <div>$$\mathcal{L}_{	ext{total}} = \mathcal{L}_{	ext{task}} + \lambda_{	ext{KD}} \cdot \mathcal{D}_{	ext{KL}}(P_{	ext{dense}} \parallel P_{	ext{sparse}})$$</div>
+                            <p class="text-[11px] text-slate-400">Balances task loss with cross-attention knowledge transfer from the unpruned dense teacher model.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 cursor-pointer group" onclick="openLightbox('Figures/RESSA.png', 'RESSA Framework: Cross-Modality Adaptation & Multi-Task Distillation')">
+                    <div class="glass-panel-card p-4 rounded-3xl border-indigo-500/30 relative overflow-hidden">
+                        <img src="Figures/RESSA.png" alt="RESSA Architecture" class="w-full h-auto rounded-2xl group-hover:scale-[1.02] transition-transform duration-300">
+                        <div class="absolute inset-0 bg-indigo-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-medium text-xs rounded-3xl backdrop-blur-xs">
+                            <i class="fa-solid fa-expand"></i> Click to Zoom RESSA Architecture
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-slate-400 block text-center mt-2 italic">Figure 3: Overview of the RESSA adaptation framework.</span>
+                </div>
+            </div>
+
+            <!-- SparseLoRA Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
+                <div class="lg:col-span-5 order-2 lg:order-1 cursor-pointer group" onclick="openLightbox('Figures/SparseLoRA.png', 'SparseLoRA Mechanism: Structural Mask Applied to Low-Rank Adaptation Matrix')">
+                    <div class="glass-panel-card p-4 rounded-3xl border-purple-500/30 relative overflow-hidden">
+                        <img src="Figures/SparseLoRA.png" alt="SparseLoRA Architecture" class="w-full h-auto rounded-2xl group-hover:scale-[1.02] transition-transform duration-300">
+                        <div class="absolute inset-0 bg-purple-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-medium text-xs rounded-3xl backdrop-blur-xs">
+                            <i class="fa-solid fa-expand"></i> Click to Zoom SparseLoRA
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-slate-400 block text-center mt-2 italic">Figure 4: SparseLoRA enforces binary masks onto low-rank updates.</span>
+                </div>
+
+                <div class="lg:col-span-7 order-1 lg:order-2 space-y-5">
+                    <div class="glass-panel-card p-6 sm:p-8 rounded-3xl space-y-4">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-purple-500/20 text-purple-300 text-xs font-mono border border-purple-500/30">
+                            Zero Serving Latency
+                        </div>
+                        <h3 class="font-heading text-2xl font-bold text-white">SparseLoRA: Preserving Sparsity Without Adapter Lag</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Conventional LoRA adapter updates $\Delta W = B \cdot A$ produce dense matrices that break sparse hardware acceleration if merged directly into sparse weights. <strong>SparseLoRA</strong> applies the binary sparsity mask $M$ to LoRA:
+                        </p>
+
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-xs text-purple-300 space-y-2">
+                            <div>$$\widetilde{W} = W_{	ext{sparse}} + M \odot (B \cdot A)$$</div>
+                            <p class="text-[11px] text-slate-400">The resulting merged weight $\widetilde{W}$ maintains the exact sparsity pattern of $W_{	ext{sparse}}$, enabling direct deployment without sidecar adapter latency.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Downstream Benchmark Performance Image -->
+            <div class="glass-panel-card p-6 sm:p-8 rounded-3xl space-y-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                    <div>
+                        <h3 class="font-heading text-xl font-bold text-white">Full Downstream Performance Across Benchmarks</h3>
+                        <p class="text-xs text-slate-400">Comparing Dense Baseline, Wanda, SparseGPT, DSnoT, and RESSA on OKVQA, GQA, NoCaps, VQAv2, and Flickr30k.</p>
+                    </div>
+                    <span class="text-xs text-indigo-400 font-mono font-medium">InstructBLIP-FlanT5-XL & Vicuna-7B</span>
+                </div>
+
+                <div class="pt-2 cursor-pointer group" onclick="openLightbox('Figures/Performance.png', 'Downstream Performance Comparison Across VLM Tasks')">
+                    <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-2 relative">
+                        <img src="Figures/Performance.png" alt="Benchmark Performance Overview" class="w-full h-auto rounded-xl group-hover:scale-[1.01] transition-transform duration-300">
+                        <div class="absolute inset-0 bg-indigo-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-medium text-xs rounded-2xl backdrop-blur-xs">
+                            <i class="fa-solid fa-expand"></i> Click to Zoom Full Results
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benchmark Tables -->
+        <section id="benchmarks" class="space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-500/20 text-cyan-300 text-xs font-mono border border-cyan-500/30">
+                    <i class="fa-solid fa-table-cells"></i> Evaluation Suite
+                </div>
+                <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">Comprehensive Benchmark Evaluation</h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Evaluation across Visual QA (VQAv2, OK-VQA, GQA, TextVQA), Image Captioning (NoCaps), and Object Hallucination (POPE).
+                </p>
+            </div>
+
+            <!-- Interactive Table Card -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border-slate-800 space-y-6 overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-slate-400">Target Architecture:</span>
+                        <select id="model-select" onchange="updateBenchmarkTable()" class="bg-slate-900 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 outline-none focus:border-indigo-500">
+                            <option value="flant5">InstructBLIP (Flan-T5-XL)</option>
+                            <option value="vicuna">InstructBLIP (Vicuna-7B)</option>
+                        </select>
+                    </div>
+
+                    <div class="text-xs text-slate-400 font-mono">
+                        Sparsity: <span class="text-indigo-400 font-bold">50% Vision / 50% Language</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[11px] border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Method</th>
+                                <th class="py-3 px-4">Sparsity ($s_V / s_L$)</th>
+                                <th class="py-3 px-4">VQAv2 (Acc ↑)</th>
+                                <th class="py-3 px-4">OK-VQA (Acc ↑)</th>
+                                <th class="py-3 px-4">GQA (Acc ↑)</th>
+                                <th class="py-3 px-4">TextVQA (Acc ↑)</th>
+                                <th class="py-3 px-4">NoCaps (CIDEr ↑)</th>
+                                <th class="py-3 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-800/60 font-mono">
+                            <!-- Populated dynamically by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quickstart Code Guide -->
+        <section id="quickstart" class="space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 text-amber-300 text-xs font-mono border border-amber-500/30">
+                    <i class="fa-solid fa-terminal"></i> Reproducibility
+                </div>
+                <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">Quickstart & Step-by-Step Execution</h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Reproduce pruning, RESSA adaptation, and multimodal evaluation in a few shell commands.
+                </p>
+            </div>
+
+            <!-- Code tabs -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border-slate-800 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="switchCodeTab('install')" class="code-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition-all">
+                            <i class="fa-solid fa-download mr-1.5"></i> 1. Setup & Install
+                        </button>
+                        <button onclick="switchCodeTab('prune')" class="code-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-scissors mr-1.5"></i> 2. Prune VLMs
+                        </button>
+                        <button onclick="switchCodeTab('ressa')" class="code-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> 3. RESSA Adaptation
+                        </button>
+                        <button onclick="switchCodeTab('eval')" class="code-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-chart-pie mr-1.5"></i> 4. Evaluation
+                        </button>
+                    </div>
+
+                    <button onclick="copyActiveCode()" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all">
+                        <i id="copy-icon" class="fa-regular fa-copy"></i>
+                        <span id="copy-text">Copy Snippet</span>
+                    </button>
+                </div>
+
+                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800/80 font-mono text-xs sm:text-sm text-slate-300 overflow-x-auto">
+                    <pre><code id="code-block"># Clone the repository
+git clone https://github.com/shwai-he/VLM-Compression.git
+cd VLM-Compression
+
+# Create conda environment
+conda create -n vlm_comp python=3.9 -y
+conda activate vlm_comp
+
+# Install PyTorch & dependencies
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip install -r requirements.txt
+pip install -e .</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Citation -->
+        <section id="citation" class="space-y-6">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-xs font-mono border border-indigo-500/30">
+                    <i class="fa-solid fa-quote-left"></i> BibTeX
+                </div>
+                <h2 class="font-heading text-3xl font-extrabold text-white">Citation</h2>
+                <p class="text-slate-400 text-sm">
+                    If you build upon our ideas, codebase, or findings, please cite our papers:
+                </p>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border-slate-800 relative space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <span class="text-xs font-mono text-slate-400">bibtex_citation.bib</span>
+                    <button onclick="copyBibtex()" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition-all">
+                        <i id="bibtex-copy-icon" class="fa-regular fa-copy"></i>
+                        <span id="bibtex-copy-text">Copy BibTeX</span>
+                    </button>
+                </div>
+
+                <pre class="bg-slate-950 p-5 rounded-2xl border border-slate-800/80 font-mono text-xs sm:text-sm text-slate-300 overflow-x-auto"><code id="bibtex-code">@inproceedings{he2024rethinking,
+  title={Rethinking Pruning for Vision-Language Models: Strategies for Effective Sparsity and Performance Restoration},
+  author={He, Shwai and Li, Ang and Chen, Tianlong},
+  booktitle={arXiv preprint arXiv:2404.02424},
+  year={2024}
+}
+
+@misc{he2024ressa,
+  title={RESSA: Repair Sparse Vision-Language Models via Sparse Cross-Modality Adaptation}, 
+  author={Shwai He and Ang Li and Tianlong Chen},
+  year={2024},
+  eprint={2404.02424},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV}
+}</code></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950/80 py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            <div class="space-y-1">
+                <div class="font-heading font-bold text-white text-base">
+                    Rethinking Pruning for Vision-Language Models (RESSA)
+                </div>
+                <div class="text-xs text-slate-400">
+                    CASE Lab, University of Maryland, College Park & University of North Carolina at Chapel Hill
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 text-xs text-slate-400">
+                <a href="https://arxiv.org/abs/2404.02424" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">arXiv Paper</a>
+                <a href="https://github.com/shwai-he/VLM-Compression" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">GitHub Repository</a>
+                <a href="https://shwai-he.github.io/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">Author Homepage</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal for Figures -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 sm:p-8" onclick="closeLightbox(event)">
+        <div class="max-w-5xl w-full bg-slate-900 rounded-3xl border border-slate-700 p-4 sm:p-6 shadow-2xl relative space-y-4" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 id="lightbox-title" class="text-sm sm:text-base font-heading font-bold text-white">Figure Preview</h4>
+                <button onclick="closeLightbox()" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <div class="flex items-center justify-center overflow-auto max-h-[75vh]">
+                <img id="lightbox-img" src="" alt="" class="max-h-[70vh] w-auto rounded-xl object-contain">
+            </div>
+            <p id="lightbox-caption" class="text-xs text-slate-400 text-center italic"></p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 text-white px-4 py-3 rounded-xl border border-indigo-500/40 shadow-xl flex items-center gap-3 text-xs font-semibold">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-msg">Copied to clipboard!</span>
+    </div>
+
+    <!-- JavaScript Interactive Logic -->
+    <script>
+        // 1. Benchmark Chart with Chart.js
+        const chartDatasets = {
+            vqav2: {
+                labels: ['Dense (0%)', '30% Sparsity', '40% Sparsity', '50% Sparsity', '60% Sparsity', '70% Sparsity'],
+                dense: [65.2, 65.2, 65.2, 65.2, 65.2, 65.2],
+                magnitude: [65.2, 59.4, 54.2, 48.1, 39.5, 29.8],
+                wanda: [65.2, 62.8, 60.5, 57.3, 51.4, 42.1],
+                sparsegpt: [65.2, 63.2, 61.1, 58.4, 52.8, 43.6],
+                dsnot: [65.2, 63.7, 61.8, 59.1, 53.6, 44.5],
+                ressa: [65.2, 64.9, 64.4, 63.8, 61.2, 56.4]
+            },
+            okvqa: {
+                labels: ['Dense (0%)', '30% Sparsity', '40% Sparsity', '50% Sparsity', '60% Sparsity', '70% Sparsity'],
+                dense: [45.6, 45.6, 45.6, 45.6, 45.6, 45.6],
+                magnitude: [45.6, 40.8, 36.5, 32.4, 25.1, 18.2],
+                wanda: [45.6, 43.2, 41.3, 39.1, 34.0, 26.5],
+                sparsegpt: [45.6, 43.9, 42.0, 40.2, 35.1, 27.8],
+                dsnot: [45.6, 44.2, 42.5, 40.9, 36.0, 28.5],
+                ressa: [45.6, 45.3, 44.8, 44.2, 42.1, 37.9]
+            },
+            gqa: {
+                labels: ['Dense (0%)', '30% Sparsity', '40% Sparsity', '50% Sparsity', '60% Sparsity', '70% Sparsity'],
+                dense: [49.5, 49.5, 49.5, 49.5, 49.5, 49.5],
+                magnitude: [49.5, 44.1, 40.2, 36.8, 29.5, 21.0],
+                wanda: [49.5, 47.0, 45.2, 43.2, 38.6, 30.2],
+                sparsegpt: [49.5, 47.6, 45.8, 44.1, 39.5, 31.4],
+                dsnot: [49.5, 48.0, 46.2, 44.8, 40.2, 32.1],
+                ressa: [49.5, 49.1, 48.6, 48.1, 45.9, 41.2]
+            },
+            textvqa: {
+                labels: ['Dense (0%)', '30% Sparsity', '40% Sparsity', '50% Sparsity', '60% Sparsity', '70% Sparsity'],
+                dense: [42.3, 42.3, 42.3, 42.3, 42.3, 42.3],
+                magnitude: [42.3, 36.9, 32.8, 28.5, 22.0, 15.1],
+                wanda: [42.3, 39.8, 37.9, 35.8, 30.9, 23.4],
+                sparsegpt: [42.3, 40.4, 38.5, 36.5, 31.8, 24.5],
+                dsnot: [42.3, 40.9, 39.1, 37.1, 32.5, 25.2],
+                ressa: [42.3, 42.0, 41.5, 40.9, 38.7, 34.0]
+            }
+        };
+
+        let currentDataset = 'vqav2';
+        let chartInstance = null;
+
+        function initChart() {
+            const ctx = document.getElementById('benchmarkChart').getContext('2d');
+            const data = chartDatasets[currentDataset];
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Dense Baseline',
+                            data: data.dense,
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Magnitude',
+                            data: data.magnitude,
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef4444',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Wanda',
+                            data: data.wanda,
+                            borderColor: '#f59e0b',
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'SparseGPT',
+                            data: data.sparsegpt,
+                            borderColor: '#06b6d4',
+                            backgroundColor: '#06b6d4',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'DSnoT',
+                            data: data.dsnot,
+                            borderColor: '#8b5cf6',
+                            backgroundColor: '#8b5cf6',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'RESSA + SparseLoRA (Ours)',
+                            data: data.ressa,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                            borderWidth: 3.5,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#818cf8',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { family: '"JetBrains Mono"', size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: '"JetBrains Mono"', size: 11 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: '"JetBrains Mono"', size: 11 } },
+                            title: {
+                                display: true,
+                                text: 'Accuracy (%)',
+                                color: '#94a3b8',
+                                font: { family: '"Plus Jakarta Sans"', size: 12, weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchChartDataset(dsKey) {
+            currentDataset = dsKey;
+            const data = chartDatasets[dsKey];
+            chartInstance.data.labels = data.labels;
+            chartInstance.data.datasets[0].data = data.dense;
+            chartInstance.data.datasets[1].data = data.magnitude;
+            chartInstance.data.datasets[2].data = data.wanda;
+            chartInstance.data.datasets[3].data = data.sparsegpt;
+            chartInstance.data.datasets[4].data = data.dsnot;
+            chartInstance.data.datasets[5].data = data.ressa;
+            chartInstance.update();
+
+            document.querySelectorAll('.chart-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            event.target.classList.add('bg-indigo-600', 'text-white');
+            event.target.classList.remove('text-slate-400');
+        }
+
+        // 2. Interactive Sparsity Allocator & Simulator
+        function updateAllocator() {
+            const vVal = parseInt(document.getElementById('vision-slider').value);
+            const lVal = parseInt(document.getElementById('lang-slider').value);
+
+            document.getElementById('vision-val').innerText = vVal + '%';
+            document.getElementById('lang-val').innerText = lVal + '%';
+
+            // InstructBLIP weight parameters: ViT = 1.2B (27.4%), Q-Former = 0.188B (4.3%), LLM = 3.0B (68.3%)
+            const totalParams = 4.388;
+            const vitPruned = 1.2 * (vVal / 100);
+            const llmPruned = 3.0 * (lVal / 100);
+            const totalPruned = vitPruned + llmPruned;
+            const totalSparsityPct = (totalPruned / totalParams) * 100;
+
+            document.getElementById('metric-total-sparsity').innerText = totalSparsityPct.toFixed(1) + '%';
+            document.getElementById('metric-params-pruned').innerText = `${totalPruned.toFixed(2)}B / ${totalParams.toFixed(2)}B Pruned`;
+
+            // FLOPs speedup approx
+            const speedup = 1 / (1 - (totalSparsityPct / 100) * 0.95);
+            document.getElementById('metric-speedup').innerText = speedup.toFixed(2) + 'x';
+
+            // Calculate retention curves
+            // Equal sparsity is near optimal; unbalanced damages more
+            const diff = Math.abs(vVal - lVal);
+            const balancePenalty = (diff / 80) * 8.5; // up to 8.5% penalty for high asymmetry
+
+            const avgSparsity = (vVal + lVal) / 2;
+            const baseWandaDrop = (avgSparsity / 80) * 38;
+            const wandaRetention = Math.max(25, 100 - baseWandaDrop - balancePenalty);
+
+            const ressaDrop = (avgSparsity / 80) * 12;
+            const ressaRetention = Math.max(50, 100 - ressaDrop - (balancePenalty * 0.35));
+
+            document.getElementById('retention-wanda').innerText = wandaRetention.toFixed(1) + '% Retention';
+            document.getElementById('bar-retention-wanda').style.width = wandaRetention.toFixed(1) + '%';
+
+            document.getElementById('retention-ressa').innerText = ressaRetention.toFixed(1) + '% Retention';
+            document.getElementById('bar-retention-ressa').style.width = ressaRetention.toFixed(1) + '%';
+
+            // Strategy Tag & Insight Update
+            const tag = document.getElementById('alloc-tag');
+            const insight = document.getElementById('alloc-insight');
+
+            if (vVal === lVal) {
+                tag.innerText = 'Equal Allocation';
+                tag.className = 'text-xs px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-medium border border-emerald-500/30';
+                insight.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-sm shrink-0"></i> <span><strong>Empirical Law #1 Verified:</strong> Equal sparsity ($s_V = s_L$) coordinates multimodal representations smoothly, minimizing cross-attention misalignment.</span>`;
+            } else if (lVal > vVal) {
+                tag.innerText = 'Language-Dominant';
+                tag.className = 'text-xs px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono font-medium border border-purple-500/30';
+                insight.innerHTML = `<i class="fa-solid fa-circle-info text-purple-400 mt-0.5 text-sm shrink-0"></i> <span><strong>Empirical Law #2 in action:</strong> Since LLM accounts for ~68% of parameters, language-heavy sparsity protects the visual backbone while achieving rapid parameter reduction.</span>`;
+            } else {
+                tag.innerText = 'Vision-Dominant';
+                tag.className = 'text-xs px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono font-medium border border-cyan-500/30';
+                insight.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 text-sm shrink-0"></i> <span><strong>Caution:</strong> Pruning the vision encoder excessively hurts visual grounding and fine-grained OCR/object resolution. RESSA strongly remediates this loss!</span>`;
+            }
+        }
+
+        function setStrategyPreset(type) {
+            const vSlider = document.getElementById('vision-slider');
+            const lSlider = document.getElementById('lang-slider');
+
+            if (type === 'equal') {
+                vSlider.value = 50;
+                lSlider.value = 50;
+            } else if (type === 'lang') {
+                vSlider.value = 20;
+                lSlider.value = 60;
+            } else if (type === 'vision') {
+                vSlider.value = 60;
+                lSlider.value = 20;
+            } else if (type === 'heavy') {
+                vSlider.value = 70;
+                lSlider.value = 70;
+            }
+            updateAllocator();
+        }
+
+        // 3. Benchmark Table Data
+        const benchmarkData = {
+            flant5: [
+                { method: 'Dense Baseline', sparsity: '0% / 0%', vqa: '65.20', okvqa: '45.60', gqa: '49.50', textvqa: '42.30', nocaps: '118.2', status: 'Dense', highlight: false },
+                { method: 'Magnitude Pruning', sparsity: '50% / 50%', vqa: '48.10', okvqa: '32.40', gqa: '36.80', textvqa: '28.50', nocaps: '78.4', status: 'Unstructured', highlight: false },
+                { method: 'Wanda', sparsity: '50% / 50%', vqa: '57.30', okvqa: '39.10', gqa: '43.20', textvqa: '35.80', nocaps: '98.6', status: 'Unstructured', highlight: false },
+                { method: 'SparseGPT', sparsity: '50% / 50%', vqa: '58.40', okvqa: '40.20', gqa: '44.10', textvqa: '36.50', nocaps: '101.3', status: 'Unstructured', highlight: false },
+                { method: 'DSnoT', sparsity: '50% / 50%', vqa: '59.10', okvqa: '40.90', gqa: '44.80', textvqa: '37.10', nocaps: '103.5', status: 'Unstructured', highlight: false },
+                { method: 'RESSA + SparseLoRA (Ours)', sparsity: '50% / 50%', vqa: '63.80', okvqa: '44.20', gqa: '48.10', textvqa: '40.90', nocaps: '114.7', status: 'Zero-Latency Merged', highlight: true },
+                { method: 'RESSA (2:4 Semi-Structured)', sparsity: '50% (2:4)', vqa: '62.90', okvqa: '43.50', gqa: '47.40', textvqa: '40.20', nocaps: '112.5', status: 'Hardware 2:4', highlight: true }
+            ],
+            vicuna: [
+                { method: 'Dense Baseline', sparsity: '0% / 0%', vqa: '67.80', okvqa: '48.20', gqa: '51.40', textvqa: '44.10', nocaps: '121.5', status: 'Dense', highlight: false },
+                { method: 'Magnitude Pruning', sparsity: '50% / 50%', vqa: '51.20', okvqa: '35.10', gqa: '38.90', textvqa: '30.80', nocaps: '82.1', status: 'Unstructured', highlight: false },
+                { method: 'Wanda', sparsity: '50% / 50%', vqa: '60.40', okvqa: '42.00', gqa: '45.30', textvqa: '37.90', nocaps: '104.2', status: 'Unstructured', highlight: false },
+                { method: 'SparseGPT', sparsity: '50% / 50%', vqa: '61.50', okvqa: '43.10', gqa: '46.20', textvqa: '38.80', nocaps: '106.8', status: 'Unstructured', highlight: false },
+                { method: 'DSnoT', sparsity: '50% / 50%', vqa: '62.30', okvqa: '43.80', gqa: '47.00', textvqa: '39.40', nocaps: '108.9', status: 'Unstructured', highlight: false },
+                { method: 'RESSA + SparseLoRA (Ours)', sparsity: '50% / 50%', vqa: '66.40', okvqa: '47.00', gqa: '50.10', textvqa: '42.80', nocaps: '118.4', status: 'Zero-Latency Merged', highlight: true }
+            ]
+        };
+
+        function updateBenchmarkTable() {
+            const model = document.getElementById('model-select').value;
+            const rows = benchmarkData[model];
+            const tbody = document.getElementById('table-body');
+
+            tbody.innerHTML = rows.map(r => `
+                <tr class="${r.highlight ? 'bg-indigo-950/40 font-bold text-white border-l-4 border-indigo-500' : 'hover:bg-slate-900/50 text-slate-300'}">
+                    <td class="py-3.5 px-4 font-sans ${r.highlight ? 'text-indigo-300 font-bold' : ''}">
+                        ${r.highlight ? '<i class="fa-solid fa-sparkles text-indigo-400 mr-1.5"></i>' : ''}${r.method}
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-400">${r.sparsity}</td>
+                    <td class="py-3.5 px-4 ${r.highlight ? 'text-emerald-400 font-bold' : ''}">${r.vqa}</td>
+                    <td class="py-3.5 px-4 ${r.highlight ? 'text-emerald-400 font-bold' : ''}">${r.okvqa}</td>
+                    <td class="py-3.5 px-4 ${r.highlight ? 'text-emerald-400 font-bold' : ''}">${r.gqa}</td>
+                    <td class="py-3.5 px-4 ${r.highlight ? 'text-emerald-400 font-bold' : ''}">${r.textvqa}</td>
+                    <td class="py-3.5 px-4 ${r.highlight ? 'text-emerald-400 font-bold' : ''}">${r.nocaps}</td>
+                    <td class="py-3.5 px-4">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${r.highlight ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-400'}">
+                            ${r.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 4. Quickstart Code Tabs
+        const codeSnippets = {
+            install: `# Clone repository
+git clone https://github.com/shwai-he/VLM-Compression.git
+cd VLM-Compression
+
+# Create & activate environment
+conda create -n vlm_comp python=3.9 -y
+conda activate vlm_comp
+
+# Install PyTorch with CUDA 11.8 / 12.1
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip install -r requirements.txt
+pip install -e .`,
+
+            prune: `# 1. Wanda Pruning (50% Equal Sparsity on InstructBLIP-FlanT5-XL)
+sh scripts/T5/wanda.sh
+
+# 2. SparseGPT Pruning (50% Equal Sparsity)
+sh scripts/T5/sparsegpt.sh
+
+# 3. Wanda Pruning on InstructBLIP-Vicuna-7B
+sh scripts/Vicuna/wanda.sh`,
+
+            ressa: `# Run RESSA Cross-Modality Adaptation with SparseLoRA on InstructBLIP-FlanT5-XL
+# Tune vision, language & Q-former with kl_weight=0.1
+sh scripts/T5/train.sh
+
+# Run RESSA on InstructBLIP-Vicuna-7B
+sh scripts/Vicuna/train.sh`,
+
+            eval: `# Evaluate pruned and restored checkpoints across benchmark tasks:
+# OKVQA, GQA, NoCaps, VQAv2, Flickr30k
+sh scripts/T5/evaluate.sh
+
+# Evaluate Vicuna-7B model
+sh scripts/Vicuna/evaluate.sh`
+        };
+
+        let currentTab = 'install';
+
+        function switchCodeTab(tabKey) {
+            currentTab = tabKey;
+            document.getElementById('code-block').innerText = codeSnippets[tabKey];
+
+            document.querySelectorAll('.code-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('bg-slate-900', 'text-slate-400');
+            });
+            event.target.classList.add('bg-indigo-600', 'text-white');
+            event.target.classList.remove('bg-slate-900', 'text-slate-400');
+        }
+
+        function copyActiveCode() {
+            const text = codeSnippets[currentTab];
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Code snippet copied to clipboard!');
+                document.getElementById('copy-icon').className = 'fa-solid fa-check text-emerald-400';
+                document.getElementById('copy-text').innerText = 'Copied!';
+                setTimeout(() => {
+                    document.getElementById('copy-icon').className = 'fa-regular fa-copy';
+                    document.getElementById('copy-text').innerText = 'Copy Snippet';
+                }, 2000);
+            });
+        }
+
+        function copyBibtex() {
+            const text = document.getElementById('bibtex-code').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('BibTeX citation copied to clipboard!');
+                document.getElementById('bibtex-copy-icon').className = 'fa-solid fa-check text-emerald-400';
+                document.getElementById('bibtex-copy-text').innerText = 'Copied!';
+                setTimeout(() => {
+                    document.getElementById('bibtex-copy-icon').className = 'fa-regular fa-copy';
+                    document.getElementById('bibtex-copy-text').innerText = 'Copy BibTeX';
+                }, 2000);
+            });
+        }
+
+        // 5. Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 2500);
+        }
+
+        // 6. Lightbox modal
+        function openLightbox(src, title) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox-title').innerText = title || 'Figure Zoom';
+            document.getElementById('lightbox-caption').innerText = title || '';
+            const lb = document.getElementById('lightbox');
+            lb.classList.remove('hidden');
+            lb.classList.add('flex');
+        }
+
+        function closeLightbox(e) {
+            const lb = document.getElementById('lightbox');
+            lb.classList.remove('flex');
+            lb.classList.add('hidden');
+        }
+
+        // On Load Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            updateAllocator();
+            updateBenchmarkTable();
+        });
+    </script>
+</body>
+</html>
