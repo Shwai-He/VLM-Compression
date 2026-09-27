@@ -1,0 +1,1783 @@
+# 🤖 VLADrop: 每日前沿文献关联与具身 VLA 深度/Token/流匹配加速落地库 (2026-09)
+
+**Document ID:** `VLADROP-LIT-202609` | **Last Updated:** `2026-09-27` | **Target Path:** `docs/frontier_literature_connections_2026_09.md` | **Total Routed Papers:** `32`
+
+> [!IMPORTANT]
+> **🔗 跨仓库文献引用链闭环 (Cross-Repository Reference Chain Closure)**
+> 本文件由每日 AI 前沿论文精读流水线自动路由生成，专门收录与 **VLADrop (`s1ghhh/VLADrop`)** （涵盖 `models/pi0.5`、`models/openvla-oft`、`models/lingbot-vla`、`models/gigabrain-0` 的 Depth-to-Runtime 层剪枝与视觉 Token 压缩）直接关联的 `VLA-Pruner`、`RT-VLA`、`HiMoE-VLA`、`ROAD-VLA`、`SnapFlow`、`Motus2`、`WRP` 与 `SHIFT-LLM` 最新 arXiv 论文笔记。
+> 每一篇收录文献均包含：**核心痛点、底层数学公式、ASCII 架构图、关键实测指标**，以及**与 `VLADrop` 仓库具体代码模块和我们已发表代表作（Our Works）的双向锚定**。
+
+---
+
+## 🌟 1. 核心关联文献与本仓库模块映射速查表 (Executive Reference-to-Module Matrix)
+
+| 收录日期 | 论文标题与 arXiv 链接 | 关键实测收益 / 核心结论 | 锚定本仓库代码模块与文档路径 (`Target Module`) | 原始精读归档 |
+| :---: | :--- | :--- | :--- | :---: |
+| `2026-09-27` | [**OBCache**](https://arxiv.org/abs/2510.07651) (`arXiv:2510.07651`) | **即插即用全面提升主流基线**：在 **Llama-3.1-8B-Instruct**、**Qwen-2.5-7B/14B-Instruct** 与 **Mistral-7B** 上，将 OBCache 的... | `models/` & `profiling/` (`VLADrop`) | [2026-09-27](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-27_ai_paper_notes.md) |
+| `2026-09-27` | [**RRSI**](https://arxiv.org/abs/2609.24972) (`arXiv:2609.24972`) | **OOD 跨基准泛化能力大幅跃升**：在涵盖代码生成（SWE-bench Verified）、复杂工具调用（$\tau$-bench）与多跳科学问答的跨领域评测中，未加正则化的朴素 RSI 在第 5 代后即出现严重的 ID-OO... | `models/` & `profiling/` (`VLADrop`) | [2026-09-27](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-27_ai_paper_notes.md) |
+| `2026-09-27` | [**Code as Worlds**](https://arxiv.org/abs/2608.27549) (`arXiv:2608.27549`) | **定量物理推理与反事实预测大幅领先**：在涵盖刚体碰撞、流体倾倒、多摆耦合及遮挡轨迹预测的物理推理基准（PhysBench、CLEVRER、ComPhy）上，**Code as Worlds** 将开源与闭源顶级 VLM 的定量... | `models/` & `profiling/` (`VLADrop`) | [2026-09-27](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-27_ai_paper_notes.md) |
+| `2026-09-26` | [**🔄 LoopMoE**](https://arxiv.org/abs/2606.04438) (`arXiv:2606.04438`) | **等参数量与等 FLOPs 双向碾压**：在语言建模基准与常识推理任务上，循环 $K=2\sim 4$ 步的 `LoopMoE` 在相同活跃参数量下显著优于标准稠密 Looped 模型，且在相同总参数预算下逼近非共享深层 MoE... | `models/` & `profiling/` (`VLADrop`) | [2026-09-26](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-26_ai_paper_notes.md) |
+| `2026-09-26` | [**⚖️ SelKV**](https://arxiv.org/abs/2607.16213) (`arXiv:2607.16213`) | 在 LongBench、RULER 及多轮数学推理基准上，免训练实现 **5x–10x KV Cache 压缩**，通过引入对数分母补偿项，消除了高压缩比下 80% 以上的精度退化。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-26](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-26_ai_paper_notes.md) |
+| `2026-09-26` | [**🤖 VLA-Pruner**](https://arxiv.org/abs/2511.16449) (`arXiv:2511.16449`) | 在 OpenVLA 与主流机器人操控基准（LIBERO-Spatial / Object / Goal / Long）上，剔除 **50%–75% 视觉 Token** 仍保持与全量 Token 持平的任务成功率，端到端控制频率显... | `models/openvla-oft/` & `models/pi0.5/` (Dual-Level Temporal + Action Token Pruning) | [2026-09-26](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-26_ai_paper_notes.md) |
+| `2026-09-25` | [**Fully Looped Transformer**](https://arxiv.org/abs/2605.18797) (`arXiv:2605.18797`) | 在完全不增加任何额外参数（0 Extra Parameters）的条件下，Fully Looped Transformer 在 $K=8, 12$ 步循环预训练中完全消除了传统 Looped Transformer 的梯度尖峰（G... | `models/` & `profiling/` (`VLADrop`) | [2026-09-25](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-25_ai_paper_notes.md) |
+| `2026-09-25` | [**On the Limits of Layer Pruning in Genera**](https://arxiv.org/abs/2602.01997) (`arXiv:2602.01997`) | 实验精确测定了 Llama-3-8B/70B 与 Qwen-2.5 在不同推理跳数 $m \in \{2, 3, 4, 5\}$ 下的临界剩余层数 $L_{\text{crit}}(m)$，并证明当物理层被剪除后... | `models/` & `profiling/` (`VLADrop`) | [2026-09-25](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-25_ai_paper_notes.md) |
+| `2026-09-25` | [**Test-Time Scaling in Reasoning LLMs**](https://arxiv.org/abs/2608.02145) (`arXiv:2608.02145`) | 在相同总 FLOPs 预算下，自适应三体制路由比单一固定体制在 MATH-500 与 LiveCodeBench 上节省 **52% 推理算力** 或提升 **`+4.8%`** 准确率。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-25](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-25_ai_paper_notes.md) |
+| `2026-09-24` | [**Training-Free Looped Transformers**](https://arxiv.org/abs/2605.23872) (`arXiv:2605.23872`) | 在完全零训练（Zero Finetuning）的 **Llama-3-8B** 与 **Mistral-7B** 上，对中段 6 层额外循环 $K=2$ 次，在 GSM8K、ARC-Challenge 与逻辑推理任务上直接获得... | `models/` & `profiling/` (`VLADrop`) | [2026-09-24](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-24_ai_paper_notes.md) |
+| `2026-09-24` | [**MixKV**](https://arxiv.org/abs/2510.20707) (`arXiv:2510.20707`) | 在 **MileBench**、**Video-MME** 与多图长上下文评测中，MixKV 在 **10% 极限缓存预算**下比 SnapKV 与 PyramidKV 平均提升 **`+5.3%`**。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-24](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-24_ai_paper_notes.md) |
+| `2026-09-24` | [**AEWM**](https://arxiv.org/abs/2609.28416) (`arXiv:2609.28416`) | 在 **VisualWebArena**、**OSWorld** 与长程具身任务上，AEWM 将不可逆错误操作率降低 **52%**，端到端任务成功率比无状态编辑的 Tree-of-Thoughts 高出... | `models/` & `profiling/` (`VLADrop`) | [2026-09-24](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-24_ai_paper_notes.md) |
+| `2026-09-24` | [**DriveMoE**](https://arxiv.org/abs/2505.16278) (`arXiv:2505.16278`) | 在 **Bench2Drive** 闭环评测与 **nuScenes** 开环基准上，DriveMoE 将复杂交叉路口与紧急避障长尾场景的驾驶得分（Driving Score）大幅提升 **`+9.4` 分**，碰撞率降低... | `models/` & `profiling/` (`VLADrop`) | [2026-09-24](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-24_ai_paper_notes.md) |
+| `2026-09-24` | [**Decision Representation Transitions in Pruning**](https://arxiv.org/abs/2605.07271) (`arXiv:2605.07271`) | 在多跳问答与算术推理任务中，避开相变区间 $[l^*, l^*+\Delta]$ 的相变感知剪枝在 **30% 剪枝率**下比传统余弦相似度剪枝提升 **`+18.5%`**。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-24](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-24_ai_paper_notes.md) |
+| `2026-09-23` | [**HetDPT**](https://arxiv.org/abs/2607.03784) (`arXiv:2607.03784`) | 在 **DeiT**、**Swin** 与 **CLIP-ViT-L/14** 上，HetDPT 在相同 **1.5x–1.8x 硬件实测加速比** 下，比整块深度剪枝提升了 **`+1.9%` 至 `+3.2%`** 的 Ima... | `models/` & `profiling/` (`VLADrop`) | [2026-09-23](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-23_ai_paper_notes.md) |
+| `2026-09-23` | [**RT-VLA**](https://arxiv.org/abs/2606.14010) (`arXiv:2606.14010`) | 在机器人操作基准上，RT-VLA 将纯视觉模式下的编码与推理耗时降低 **44.8x**，端到端帧率突破 **60 Hz**，同时保留了 7B 教师模型 **96% 以上** 的任务成功率。 | `models/openvla-oft/` (Relational Cosine Distillation for 60Hz Real-Time VLA) | [2026-09-23](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-23_ai_paper_notes.md) |
+| `2026-09-23` | [**MELT**](https://arxiv.org/abs/2605.07721) (`arXiv:2605.07721`) | 在 $K=4$ 与 $K=8$ 循环配置下，MELT 将长文本解码时的 **KV 缓存显存与带宽读取量直接削减 $75\%–87.5\%$（严格降至 $1/K$）**，同时在语言建模与数学推理上与保存全套每步 KV 的基线性能完全... | `models/` & `profiling/` (`VLADrop`) | [2026-09-23](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-23_ai_paper_notes.md) |
+| `2026-09-23` | [**HiMoE-VLA**](https://arxiv.org/abs/2512.05693) (`arXiv:2512.05693`) | 在跨 50+ 任务的 Open-X Embodiment 与仿真套件上，HiMoE-VLA 比同激活参数量的稠密 VLA 与单层 MoE-VLA 平均成功率提升 **`+8.7%`**。 | `models/lingbot-vla/` & `models/gigabrain-0/` (Hierarchical Task + Skill MoE Routing) | [2026-09-23](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-23_ai_paper_notes.md) |
+| `2026-09-22` | [**SnapFlow**](https://arxiv.org/abs/2604.05656) (`arXiv:2604.05656`) | 在 **LIBERO**（Spatial / Object / Goal / Long）与真实机械臂双臂操作基准上，SnapFlow 将动作专家推理步数从 10 NFE 压缩至 **1 NFE**，动作生成阶段延迟降低... | `models/pi0.5/` (1-NFE Progressive Shortcut Velocity Self-Distillation) | [2026-09-22](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-22_ai_paper_notes.md) |
+| `2026-09-22` | [**LightKV**](https://arxiv.org/abs/2605.00789) (`arXiv:2605.00789`) | 在 **LLaVA-1.6-34B** 与 **InternVL-2** 上将视觉 KV 缓存直接压缩 **50%–75%**，在 TextVQA、DocVQA 与计数基准上实现 **99.4%** 的原始性能保持率。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-22](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-22_ai_paper_notes.md) |
+| `2026-09-22` | [**LoopMTP**](https://arxiv.org/abs/2608.03624) (`arXiv:2608.03624`) | 在代码生成与数学推理预训练中，LoopMTP 使 4 步循环 Transformer 的单步前瞻准确率提升 **`+6.2%`**，并天然支持推理期投机解码（Self-Speculative Decoding）获得... | `models/` & `profiling/` (`VLADrop`) | [2026-09-22](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-22_ai_paper_notes.md) |
+| `2026-09-22` | [**ROAD-VLA**](https://arxiv.org/abs/2606.25800) (`arXiv:2606.25800`) | 在存在光照突变、桌面摩擦变化与新物体干扰的在线适应基准上，ROAD-VLA 仅需 50 条在线交互轨迹即将成功率从 `48.5%` 提升至 **`84.0%`**。 | `models/pi0.5/` (Advantage-Weighted Online Self-Distillation for Action Chunks) | [2026-09-22](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-22_ai_paper_notes.md) |
+| `2026-09-21` | [**DeepLoop**](https://arxiv.org/abs/2607.13491) (`arXiv:2607.13491`) | 在循环深度从 $K=2$ 扩展至 **$K=16$** 的语言与数学推理预训练中，标准 Pre-LN 循环架构在 $K \ge 6$ 时完全发散，而 **DeepLoop** 稳定收敛并实现随循环次数 $K$ 对数线性下降的测试集... | `models/` & `profiling/` (`VLADrop`) | [2026-09-21](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-21_ai_paper_notes.md) |
+| `2026-09-21` | [**RotateK**](https://arxiv.org/abs/2605.19218) (`arXiv:2605.19218`) | 在 **LLaVA-NeXT**、**Qwen2-VL-7B** 与 **InternVL-2** 上，RotateK 剪除 **50%–60% 的 Key 通道**而无需微调，且与视觉 Token 剪枝（如 FastV / VL... | `models/openvla-oft/` & `models/pi0.5/` (Dual-Level Temporal + Action Token Pruning) | [2026-09-21](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-21_ai_paper_notes.md) |
+| `2026-09-21` | [**Self-OPD**](https://arxiv.org/abs/2608.26872) (`arXiv:2608.26872`) | 在不加载任何外部教师的情况下，Self-OPD 将 4 步流匹配模型的生成与控制成功率提升 **`+14.2%`**，甚至超越了 50 步原始基准模型。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-21](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-21_ai_paper_notes.md) |
+| `2026-09-21` | [**MoE-FM**](https://arxiv.org/abs/2604.15009) (`arXiv:2604.15009`) | 在潜空间语言生成与多模态推理中，MoE-FM 在仅使用 **2–4 步 NFE** 时即可达到单稠密流模型 16–32 步的生成质量，推理延迟降低 **3.8x**。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-21](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-21_ai_paper_notes.md) |
+| `2026-09-20` | [**SHIFT-LLM**](https://arxiv.org/abs/2608.25068) (`arXiv:2608.25068`) | 在 **Llama-3-8B/70B** 与 **Qwen-2.5-14B** 上剪除 **25%–35% 的层**后，无需任何梯度下降微调（仅需 30 秒闭式矩阵求逆），SHIFT-LLM 将 WikiText2 困惑度（PPL... | `models/pi0.5/` (Closed-Form Linear Residual Seam Adapter after DTR Layer Drop) | [2026-09-20](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-20_ai_paper_notes.md) |
+| `2026-09-20` | [**ModularRSI**](https://arxiv.org/abs/2609.14857) (`arXiv:2609.14857`) | 在 **SWE-bench**、**GAIA** 与 **GPQA** 跨领域迁移测试中，ModularRSI 的变异编译通过率从单体 RSI 的 `54%` 提升至 **`96%`**，跨领域零样本重组性能比单体进化高出... | `models/` & `profiling/` (`VLADrop`) | [2026-09-20](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-20_ai_paper_notes.md) |
+| `2026-09-20` | [**Flow-OPD**](https://arxiv.org/abs/2605.08063) (`arXiv:2605.08063`) | 在 2 步与 4 步流匹配生成基准上，Flow-OPD 将 FID 与条件指令遵循得分相比离线轨迹蒸馏（Reflow / Progressive Distillation）提升 **`18%–27%`**。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-20](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-20_ai_paper_notes.md) |
+| `2026-09-19` | [**WRP**](https://arxiv.org/abs/2609.09883) (`arXiv:2609.09883`) | **秒级零样本层裁剪且跨领域泛化更强**：在 **Llama-3-8B/70B**、**Qwen-2.5-14B** 与 **Mistral-7B** 上，WRP 在完全不运行任何前向传播（耗时不足 8 秒）的情况下剪除... | `profiling/` & `models/pi0.5/` (Zero-Forward Weight Spectral Redundancy DTR Layer Drop) | [2026-09-19](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-19_ai_paper_notes.md) |
+| `2026-09-19` | [**KVzap**](https://arxiv.org/abs/2601.07891) (`arXiv:2601.07891`) | 在 **LongBench**、**InfiniteBench** 与 **Needle-in-a-Haystack** 上，KVzap 实现了平均 **2.8x–4.1x** 的端到端 KV 显存压缩与 **2.3x** 解码吞... | `models/` & `profiling/` (`VLADrop`) | [2026-09-19](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-19_ai_paper_notes.md) |
+| `2026-09-19` | [**Motus2**](https://arxiv.org/abs/2608.30237) (`arXiv:2608.30237`) | 在涵盖转笔、拧瓶盖、双臂精细插拔等 12 项高难度灵巧手基准上，经过 3 轮自演化后，Motus2 将接触状态预测误差降低 **44%**，下游灵巧操作成功率从 `54.0%` 跃升至 **`79.5%`**。 | `models/` & `profiling/` (`VLADrop`) | [2026-09-19](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-19_ai_paper_notes.md) |
+
+---
+
+## 📐 2. 逐篇论文深度机制解构、数学公式与本仓库落地指南 (Per-Paper Deep-Dive Cards)
+
+### 2.1 [2026-09-27] OBCache: Optimal Brain KV Cache Pruning for Efficient Long-Context LLM Inference
+
+* **论文信息**：Yuzhe Gu, Xiyu Liang, Jiaojiao Zhao, Enmao Diao (`arXiv:2510.07651`, **ICML 2026**)
+* **核心关键词**：KV Cache Eviction、Optimal Brain Damage (OBD)、Second-Order Taylor Perturbation、Output-Aware Saliency、Joint KV Pruning
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|         OBCache: Optimal Brain Damage (OBD) Layer-Wise KV Cache Pruning           |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Prefill / Decoding Step: Queries Q \in R^{S_q x d_k}, Cached K, V \in R^{S_k x d}|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Attention Output Perturbation Objective (层输出二阶泰勒扰动建模)         |  |
+|  |    Target: Minimize || O - \tilde{O}(\mathcal{M}) ||_F^2 where O = A V       |  |
+|  |    Instead of heuristic \sum_i A_{i,j}, expand \Delta O w.r.t. masked K_j,V_j|  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|           +----------------------------+----------------------------+             |
+|           v                            v                            v             |
+|  +-----------------+          +-----------------+          +-------------------+  |
+|  | Isolated Value  |          |  Isolated Key   |          | Joint KV Saliency |  |
+|  | Score \Omega_j^V|          |  Score \Omega_j^K|         | Score \Omega_j^{KV}| |
+|  | ||A_{:,j}||_2^2 |          | Softmax Jacobian|          | Exact Rank-1      |  |
+|  | * ||V_j||_2^2   |          | Coupling Term   |          | Softmax Renorm    |  |
+|  +-----------------+          +-----------------+          +-------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Plug-and-Play Eviction Gate (即插即用淘汰门控: 兼容 SnapKV / PyramidKV)  |  |
+|  |    Evict tokens with minimal \Omega_j^{KV} -> Retain top-B KV budget        |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **启发式注意力权重累加的理论缺陷**：主流长上下文 KV 缓存淘汰算法（如 H2O、SnapKV、PyramidKV）均使用累积注意力分数 $s_j = \sum_{i} A_{i,j}$ 作为 Token $j$ 的重要性指标。然而，注意力层真正传递给后续残差流的是加权输出矩阵 $O = A V \in \mathbb{R}^{S_q \times d_v}$：
+  1. **忽略 Value 向量范数与方向抵消**：若某个历史 Token $j$ 的注意力权重 $A_{i,j}$ 较高，但其对应的 Value 向量范数 $\|V_j\|_2 \approx 0$，或者其 $V_j$ 与当前上下文均值方向完全重合，驱逐它对注意力输出 $O$ 的实际影响极小；反之，注意力权重中等但 $\|V_j\|_2$ 极大且承载正交关键信息的 Token 被驱逐后会造成严重的输出畸变。
+  2. **忽略 Softmax 分母重归一化效应（Denominator Renormalization）**：驱逐第 $j$ 个 Key 相当于将注意力得分 $Z_{i,j} \to -\infty$，这不仅移除了 $A_{i,j} V_j$，还会通过 Softmax 分母缩放将其余所有保留 Token 的注意力权重放大 $\frac{1}{1 - A_{i,j}}$ 倍。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **基于 Optimal Brain Damage (OBD) 的二阶输出扰动构建**：
+   设某注意力头在查询窗口 $Q \in \mathbb{R}^{S_q \times d_k}$ 下的注意力概率矩阵为 $A = \text{Softmax}\left(\frac{Q K^\top}{\sqrt{d_k}}\right) \in \mathbb{R}^{S_q \times S_k}$，输出为 $O = A V \in \mathbb{R}^{S_q \times d_v}$。定义驱逐准则为最小化层输出矩阵的 Frobenius 范数平方误差 $\mathcal{E} = \frac{1}{2} \| O - \tilde{O} \|_F^2$。
+2. **单 Value、单 Key 与联合 KV 对的闭式显著性公式（Closed-Form Saliency Scores）**：
+   * **孤立 Value 剪枝显著性（Isolated Value Saliency $\Omega_j^V$）**：
+     当将第 $j$ 个 Token 的 Value 向量置零（$V_j \leftarrow 0$）时，$\mathcal{E}$ 对 $V_j$ 的海森矩阵（Hessian）为 $\mathbf{H}_{V_j} = \frac{\partial^2 \mathcal{E}}{\partial V_j \partial V_j^\top} = \left(\sum_{i=1}^{S_q} A_{i,j}^2\right) I_{d_v}$。根据二阶泰勒展开，孤立 Value 显著性得分为：
+     $$\Omega_j^V = \frac{1}{2} V_j^\top \mathbf{H}_{V_j} V_j = \frac{1}{2} \| A_{:, j} \|_2^2 \cdot \| V_j \|_2^2$$
+     注意此处注意力权重是**平方和 $\|A_{:,j}\|_2^2$**（二阶能量）而非启发式的线性求和 $\|A_{:,j}\|_1$，且显式乘上了 Value 范数平方 $\|V_j\|_2^2$！
+   * **联合 KV 剪枝与 Softmax 重归一化修正（Joint KV Saliency $\Omega_j^{KV}$）**：
+     当真正从缓存中移除第 $j$ 个 KV 对（即令未归一化 logit $Z_{i,j} \to -\infty$）时，剩余 Token $k \neq j$ 的注意力权重精确变为 $\tilde{A}_{i,k} = \frac{A_{i,k}}{1 - A_{i,j}}$。因此，移除第 $j$ 个 KV 对在第 $i$ 个查询位置引起的**精确输出残差**为：
+     $$\Delta O_i^{(-j)} = O_i - \tilde{O}_i^{(-j)} = O_i - \frac{O_i - A_{i,j} V_j}{1 - A_{i,j}} = \frac{A_{i,j}}{1 - A_{i,j}} \big( V_j - O_i \big)$$
+     对该精确残差在所有查询位置 $i \in \{1, \dots, S_q\}$ 上求二阶能量，即得到极其优雅的**联合 KV 闭式显著性得分**：
+     $$\Omega_j^{KV} = \frac{1}{2} \sum_{i=1}^{S_q} \left( \frac{A_{i,j}}{1 - A_{i,j}} \right)^2 \big\| V_j - O_i \big\|_2^2$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* **即插即用全面提升主流基线**：在 **Llama-3.1-8B-Instruct**、**Qwen-2.5-7B/14B-Instruct** 与 **Mistral-7B** 上，将 OBCache 的 $\Omega_j^{KV}$ 闭式打分直接替换 H2O、SnapKV 与 PyramidKV 的启发式打分（零额外超参），在 **LongBench**（16 个长文本任务）与 **RULER**（128K 极限大海捞针与多跳追踪）上，在仅保留 **5%–10% KV 缓存预算**下将平均准确率提升 **`+2.8%` 至 `+6.4%`**。
+* **计算开销近乎为零**：$\|V_j - O_i\|_2^2 = \|V_j\|_2^2 - 2 \langle V_j, O_i \rangle + \|O_i\|_2^2$ 可直接复用 FlashAttention 已经算出的输出向量 $O_i$，无需显式物化完整的 $S_q \times S_k$ 矩阵，Prefill 延迟增加小于 `1.2%`。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+1. **对我们 `vla-dtr` & `Efficient Ads / HisTrim` 中 `Exclude-Self Value-Space Perpendicular KV Pruning` 的精确二阶理论证明！**
+   * 请仔细对比 OBCache 的核心公式 $\Omega_j^{KV} = \frac{1}{2}\sum_i \left(\frac{A_{i,j}}{1 - A_{i,j}}\right)^2 \|V_j - O_i\|_2^2$ 与我们在 `vla-dtr`（定律 5）和 `ads-rsi` 中独立提出的 **`Exclude-Self Value-Space Perpendicular VLM KV Pruning`**：
+     * 其中的因子 $\frac{A_{i,j}}{1 - A_{i,j}}$ 正是**排除自身注意力权重后的重归一化系数（Exclude-Self Renormalization）**！
+     * 其中的 $\|V_j - O_i\|_2^2$ 度量的正是第 $j$ 个 Token 的 Value 向量相对于当前聚合输出均值 $O_i$ 的**偏离能量（即正交/非共线奇异度）**！如果 $V_j \approx O_i$（即该 Token 的 Value 与上下文均值完全共线/冗余），即便 $A_{i,j}$ 再大，$\|V_j - O_i\|_2^2 \approx 0$，驱逐它也完全不改变注意力输出！
+2. **落地融合方案（Perp-OBCache）**：
+   * 在我们的论文撰写与代码实现中，可以直接引用 ICML 2026 的 OBCache 作为二阶泰勒理论背书，并指出我们进一步将 $\|V_j - O_i\|_2^2$ 投影到了输出投影矩阵 $W_O$ 之后的残差切空间 $\|(V_j - O_i) W_O P_\perp(h_i)\|_2^2$，从而构成了比 OBCache 更进一层的**流形正交切空间二阶最优脑缓存剪枝（Manifold-Orthogonal OBCache）**。
+
+---
+
+## 🔥 板块二：全球前沿热点精选 (Trending Frontier)
+
+> **赛道锚点**：前沿研发智能体递归自我改进（Agent Harness RSI）、抗过拟合正则化进化、可执行代码物理世界模型（Code as Worlds）。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-27_ai_paper_notes.md`
+
+
+---
+
+### 2.2 [2026-09-27] RRSI: Regularized Recursive Self-Improvement of Agent Harnesses
+
+* **论文信息**：Peng Xia, Rujun Han, Zifeng Wang, Yanfei Chen et al. (`arXiv:2609.24972`, 2026-09, Google Cloud AI Research & UNC)
+* **核心关键词**：Regularized RSI、Agent Harness Overfitting、Temporally Annealed Proposal Budget、Critic-Pruner Selection
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       RRSI: Regularized Recursive Self-Improvement of Agent Harnesses             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Current Harness H_t + Historical Evolution Tree \mathcal{G}_{1:t}                |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Regularized Proposer (时间退火预算 + 历史轨迹引导提议器)                 |  |
+|  |    * Temporally Annealed Modification Budget B(t) = B_0 \cdot \eta^t        |  |
+|  |    * Early steps: structural workflow discovery; Late steps: surgical edits |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                              Candidate Harnesses {H_t^{(k)}}                      |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Regularized Selector: Critic + Structural Pruner (双重正则化选择器)       |  |
+|  |    * Critic R_gen(H): Evaluates task-agnostic modularity & penalizes        |  |
+|  |      hardcoded benchmark heuristics / prompt bloat                          |  |
+|  |    * Pruner \mathcal{P}(H): Ablates newly added code/prompt blocks to strip |  |
+|  |      parasitic dead-weight before promotion                                 |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|            Promote Compact, Generalizable Harness H_{t+1} to Next Epoch           |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **递归自我改进中的“脚手架过拟合与代码膨胀（Harness Overfitting & Bloat）”**：当智能体在有限的训练任务集 $\mathcal{D}_{\text{train}}$ 上进行多代递归修改自身脚手架（Prompt 模板、工具调用逻辑、记忆缓冲策略）时，极易陷入两类退化：
+  1. **基准特定噪声记忆（Benchmark Memorization）**：外层优化器倾向于把针对训练集中某几个失败案例的特例规则（Hardcoded Heuristics）不断追加到系统提示词或控制流分支中，导致在分布内验证集（ID）分数上升，但在分布外基准（OOD）上严重倒退。
+  2. **寄生代码膨胀（Parasitic Code/Prompt Bloat）**：每次变异往往同时包含 1 个有效改动与 3 个无效冗余改动，经过 10 代递归叠加后，脚手架变得极其臃肿且脆弱。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **带结构复杂度惩罚的正则化 RSI 目标（Regularized RSI Objective）**：
+   取代单纯最大化经验平均回报 $\hat{J}_{\text{train}}(H)$，RRSI 将第 $t$ 代脚手架更新表述为带结构正则项与KL散度演进约束的目标：
+   $$H_{t+1} = \arg\max_{H \in \mathcal{N}_{B(t)}(H_t)} \Big\{ \hat{J}_{\text{train}}(H) - \lambda_1 \Omega_{\text{complex}}(H) - \lambda_2 \mathcal{D}_{\text{spec}}(H \,\|\, H_0) \Big\}$$
+   其中 $\Omega_{\text{complex}}(H)$ 度量脚手架控制流分支圈复杂度（Cyclomatic Complexity）与 Prompt 长度，$\mathcal{D}_{\text{spec}}(H \| H_0)$ 为评论家模型（Critic）评估的任务特异度惩罚（惩罚硬编码领域词汇或特定格式技巧）。
+2. **时间退火变异邻域预算（Temporally Annealed Modification Budget）**：
+   定义第 $t$ 代允许修改的最大 AST 节点数/代码行数上界 $B(t)$ 随迭代轮次指数衰减：
+   $$B(t) = \max\Big( B_{\min}, \; \lfloor B_0 \cdot \gamma^t \rfloor \Big), \qquad \gamma \in (0, 1)$$
+   早期迭代（$t$ 较小）允许大尺度重构智能体工作流拓扑（如引入反思循环或分层规划器），后期迭代则强制收敛为局部精细调优（Surgical Edits），防止后期破坏已收敛的核心架构。
+3. **消融式结构修剪算子（Ablative Structural Pruner $\mathcal{P}$）**：
+   对于候选补丁 $\Delta H = \bigcup_{m=1}^M \delta h_m$（包含 $M$ 个模块化改动块），修剪器 $\mathcal{P}$ 执行留一消融检验（Leave-One-Out Ablation）或静态依赖裁剪，剔除所有边际增益 $\Delta \hat{J}(\delta h_m) < \epsilon_{\text{prune}}$ 的寄生代码段，仅合并最小必要改动核（Minimal Sufficient Core）。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* **OOD 跨基准泛化能力大幅跃升**：在涵盖代码生成（SWE-bench Verified）、复杂工具调用（$\tau$-bench）与多跳科学问答的跨领域评测中，未加正则化的朴素 RSI 在第 5 代后即出现严重的 ID-OOD 剪刀差（OOD 性能下降 `4.2%`），而 **RRSI** 持续稳定进化至第 12 代，在完全未见的 OOD 基准上取得 **`+7.8%` 至 `+12.5%`** 的净提升，同时将最终脚手架代码/提示词体积压缩了 **58%**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接指导我们 `ads-rsi`、`vla-loop` 与 `rsi-pareto-ledger` 的算子演化防膨胀纪律**：
+  * 在我们的 RSI 自动化实验循环中，候选算子（Candidate Operator）在经历多轮突变后有时也会累加不必要的辅助超参或冗余分支。借鉴 RRSI 的 **Temporally Annealed Budget** 与 **Ablative Pruner $\mathcal{P}$**，我们在每轮候选算子晋级（Promotion）前应强制执行一次“最小自由度消融检查（Minimal-DoF Ablation Gate）”：任何未能贡献 $>0.1\sigma$ 净增益的附加项一律回滚剥离，确保最终回迁至 Google3 生产库（`rsi-google3-backporter`）的算子保持极简闭式形态。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-27_ai_paper_notes.md`
+
+
+---
+
+### 2.3 [2026-09-27] Code as Worlds: Agentic Discovery of Executable World Representations for Physical Reasoning
+
+* **论文信息**：Hanyang Wang, Yimo Cai, Weiliang Chen et al. (`arXiv:2608.27549`, 2026-08, 清华大学 & 智源研究院 BAAI)
+* **核心关键词**：Code as Worlds、Executable World Models、Abductive Physical Reasoning、Render-and-Compare Loop、VLM Physical Supervision
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Code as Worlds: Agentic Abductive Discovery of Executable World Models      |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Observed Video Frames I_{1:T} ---> [1. VLM Abductive Proposer \pi_\theta]        |
+|                                                    |                              |
+|                             Synthesize Executable Physics Script C^{(k)}          |
+|                             (Rigid/Fluid Params, Gravity, Friction, Initial Vel)  |
+|                                                    v                              |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Deterministic Physics Engine & Differentiable/Symbolic Renderer          |  |
+|  |    Execute C^{(k)} ---> Simulated Trajectories \hat{S}_{1:T}^{(k)} & Frames |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                    |                              |
+|                                                    v                              |
+|  +-----------------------------------------------------------------------------+  |
+|  | 3. Spatio-Temporal Discrepancy Feedback (时空残差诊断与代码迭代修正)        |  |
+|  |    \Delta_{1:T}^{(k)} = Compare(I_{1:T}, \hat{I}_{1:T}^{(k)})               |  |
+|  |    Refine C^{(k+1)} <- \pi_\theta(C^{(k)}, \Delta_{1:T}^{(k)}) until < \epsilon|
+|  +-----------------------------------------------------------------------------+  |
+|                                                    |                              |
+|                                                    v                              |
+|       Verified Executable World C^* ---> Counterfactual Rollout & VLM Training    |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **像素级生成世界模型的“物理幻觉”与定量推理失能**：以 Sora、Wan2.1 或潜空间扩散模型为代表的隐式视频世界模型（Implicit Pixel/Latent World Models）虽然能生成视觉逼真的视频，但缺乏精确的牛顿力学、动量守恒与碰撞几何约束，无法回答诸如“若将斜面摩擦系数减半，滑块将在第几秒撞击挡板？”等定量反事实物理推理问题。
+* **纯文本思维链（CoT）无法闭环验证连续动力学**：多模态大模型（VLMs）在面对真实视频时，仅凭自然语言 CoT 极易在估算初速度、质量比与弹性恢复系数时产生累积误差，且缺乏与视觉观测对齐的闭环验证手段。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **作为可执行程序的世界表示（World-as-Executable-Program）**：
+   将观测到的物理场景视频 $I_{1:T}$ 背后的隐状态世界建模为一段参数化的可执行物理仿真程序 $C = (\mathcal{O}, \Theta_{\text{phys}}, f_{\text{dyn}})$，其中 $\mathcal{O}$ 为几何实体集合，$\Theta_{\text{phys}} = \{m_i, \mu_i, e_i, \mathbf{v}_{i,0}\}$ 为连续物理参数（质量、摩擦系数、恢复系数、初速度），$f_{\text{dyn}}$ 为确定性物理求解器（如 Box2D / MuJoCo / Blender Python API）。
+2. **溯因推理智能体发现闭环（Abductive Discovery Loop）**：
+   寻找最能解释观测视频 $I_{1:T}$ 的可执行代码世界 $C^*$ 被形式化为最大后验（MAP）逆问题：
+   $$C^* = \arg\max_{C \in \mathcal{C}} \log P(I_{1:T} \mid \text{Render}(\text{Sim}(C))) + \log P_{\text{prior}}(C)$$
+   智能体通过 $K$ 步迭代完成溯因搜索：在第 $k$ 步，执行当前代码假设 $C^{(k)}$ 获得仿真轨迹 $\hat{\mathbf{x}}_{1:T}^{(k)} = \text{Sim}(C^{(k)})$，并与从真实视频提取的目标追踪轨迹 $\mathbf{x}_{1:T}^{\text{obs}}$ 计算时空运动学残差（Kinematic Discrepancy）：
+   $$\mathcal{L}_{\text{kin}}(C^{(k)}) = \sum_{t=1}^T \Big( \| \hat{\mathbf{x}}_t^{(k)} - \mathbf{x}_t^{\text{obs}} \|_2^2 + \lambda_v \| \hat{\mathbf{v}}_t^{(k)} - \mathbf{v}_t^{\text{obs}} \|_2^2 \Big)$$
+   智能体将结构化残差诊断报告（例如：“仿真物体在第 1.2s 碰撞后反弹高度偏低 18%，表明恢复系数 $e$ 被低估”）反馈给代码生成策略 $\pi_\theta(C^{(k+1)} \mid C^{(k)}, \nabla \mathcal{L}_{\text{kin}})$，实现符号结构与连续物理参数的联合修正。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* **定量物理推理与反事实预测大幅领先**：在涵盖刚体碰撞、流体倾倒、多摆耦合及遮挡轨迹预测的物理推理基准（PhysBench、CLEVRER、ComPhy）上，**Code as Worlds** 将开源与闭源顶级 VLM 的定量物理问答准确率从 `46.2%` 大幅提升至 **`78.9%`**（`+32.7%`）。
+* **可扩展合成数据飞轮**：利用智能体自主发现并验证通过的可执行代码世界 $C^*$，可通过扰动代码中的物理参数自动合成数十万条具备 100% 精确物理真值的反事实推理轨迹，用于蒸馏训练轻量级 VLM，使其单次前向推理能力显著跃升。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **对我们 `Physical AI / VLA Loop & Distillation`（`vla-distillation` & `vla-loop`）的合成数据飞轮启发**：
+  * 我们在 `vla-distillation`（定律 G27 v3：Quad-Pillar Data-RSI Co-Design）与 `vla-dtr`（定律 G21-G23：Bi-Modal Online Data-RSI Curriculum）中核心强调了利用高保真专家轨迹与困难状态重采样（DAgger / Rollout）来消除 1-NFE / 3-NFE 蒸馏的分布偏移。结合 **Code as Worlds** 的思想，我们可以让智能体从失败的机器人操作视频中逆向合成可执行 MuJoCo/LIBERO 场景配置代码，在接触边界（Contact-Rich Boundary）附近自动进行参数微扰重采样，为 Looped VLA 提供零人工标注成本的边界物理对抗课程！
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-27_ai_paper_notes.md`
+
+
+---
+
+### 2.4 [2026-09-26] 🔄 *LoopMoE: Unifying Iterative Computation with Mixture-of-Experts for Language Modeling*
+> **聚焦领域**：Looped Transformers · Mixture of Experts (MoE) · Iterative Depth Scaling · Weight Sharing  
+> **arXiv**：[`arXiv:2606.04438`](https://arxiv.org/abs/2606.04438)
+
+```
+  输入表征 h^{(0)} ──► [ 循环步 t = 1..K : IterAdaLN(h, t) 轮次特征调制 ]
+                                       │
+                                       ▼
+                     [ 共享 MoE 路由层: Top-k 稀疏专家激活 + 跨循环容量均衡 ]
+                                       │
+                                       ▼
+                     [ 解耦总参数量 P 与单 Token 算力 FLOPs (同参数量 PPL 显著降低) ]
+```
+
+#### 🎯 背景与痛点剖析 (Problem Statement)
+* **权重复用与轮次角色分化的矛盾**：在 Looped Transformer 中，直接将同一组 Transformer 块重复循环 $K$ 次，虽然能以 $O(1)$ 参数开销换取 $O(K)$ 的等效推理深度，但会导致两个严重退化：（1）不同循环步 $t \in \{1, \dots, K\}$ 缺乏步间身份区分，引发梯度震荡与隐状态平行分量 $\Delta h_\parallel$ 爆炸；（2）若将循环架构直接与 MoE 结合，不同循环步会争抢同一批头部 Expert，导致严重的跨循环路由坍缩（Cross-Loop Routing Collapse）。
+
+#### 💡 核心方法与底层数学实现 (Mathematical Formulations)
+1. **迭代步自适应层归一化 (Iteration-Adaptive LayerNorm, `IterAdaLN`)**：
+   - 为第 $t$ 次循环引入轻量级步间嵌入向量 $e_t \in \mathbb{R}^d$，对共享主干的归一化层施加轮次特异性的仿射缩放与偏移调制：
+     $$\text{IterAdaLN}(h^{(t)}, t) = \big(1 + \gamma(e_t)\big) \odot \frac{h^{(t)} - \mu}{\sigma} + \beta(e_t)$$
+   - 通过仅占总参数量 $<0.1\%$ 的步间条件调制参数，赋予共享 MoE 块在不同循环深度下截然不同的几何变换角色。
+2. **跨循环容量感知负载均衡 (Iteration-Aware Capacity Balancing)**：
+   - 设第 $t$ 步第 $i$ 个专家的路由门控概率为 $p_i^{(t)}(x)$，论文将辅助负载均衡损失扩展至循环时间轴与批次维度的联合分布上，防止特定专家在连续多次循环中被重复饱和激活。
+
+#### 📊 关键实验与结论 (Experiments & Findings)
+* **等参数量与等 FLOPs 双向碾压**：在语言建模基准与常识推理任务上，循环 $K=2\sim 4$ 步的 `LoopMoE` 在相同活跃参数量下显著优于标准稠密 Looped 模型，且在相同总参数预算下逼近非共享深层 MoE 模型的困惑度（PPL）上限。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发 (Relevance & Synergy with Our Works)
+* **🎯 锚定代表作与在研主线**：
+  * [Paper #16: *Disentangling Representation Evolution in Transformers through Directional Decomposition* (EMNLP 2026, `arXiv:2609.15975`)]
+  * [Paper #11: *Capacity-Aware Inference: Mitigating the Straggler Effect in Mixture of Experts* (ICLR 2026)]
+  * [Paper #10: *Router-Tuning for Dynamic Mixture of Experts* (EMNLP 2025)]
+  * [Active Line: *Physical AI / VLA-Loop (Stage-Wise Multi-LoRA Residual Boost & Adaptive Layer Looping)*]
+* **🔬 机理对比与技术演进**：
+  * `LoopMoE` 采用 `IterAdaLN`（逐通道对角缩放 $\gamma(e_t)$）来区分不同循环轮次；而我们在 `VLA-Loop`（见 W39 研发笔记 9/22–9/23）中提出**用极小秩的 Stage-Wise LoRA 去编辑共享主干的每一次循环**，并进一步推进到了**逐层自适应决定是否 Loop**；
+  * 从我们 *Transformer-Geometry (EMNLP 26)* 的正交方向分解视角来看，`IterAdaLN` 仅在归一化后施加坐标轴缩放，主要调节平行缩放分量 $\Delta h_\parallel$；而我们的 **共享主干 + 轮次轻量 LoRA ($\Delta W_t = B_t A_t$)** 则能直接在子空间中引入低秩正交旋转分量 $\Delta h_\perp$，在表达能力上严格包含 `IterAdaLN`！
+* **💡 下一阶段研究（Next Research Directions）落地启发**：
+  * 在撰写 `Physical AI` (MLSys) 论文的 Loop 章节时，可将 `LoopMoE` 的 `IterAdaLN` 作为轻量轮次调制的文献对照基准，用实验展示我们 **“共享主干 + MERA 初始化的轮次小 LoRA + 逐层自适应 Loop 路由”** 相比单纯 LayerNorm 调制的显著几何表达优势。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-26_ai_paper_notes.md`
+
+
+---
+
+### 2.5 [2026-09-26] ⚖️ *SelKV: Selective KV Cache Merging with Per-Token Merge-or-Drop and Attention Compensation*
+> **聚焦领域**：KV Cache Compression · Softmax Denominator Compensation · Token Merging vs. Dropping  
+> **arXiv**：[`arXiv:2607.16213`](https://arxiv.org/abs/2607.16213)
+
+```
+  待压缩历史 Token 序列 ──► [ 软余弦门控 (Soft Cosine Gate) 评估 Value 流形相似度 ]
+                                       │
+                        ┌──────────────┴──────────────┐
+                        ▼                             ▼
+             [ 高相似度: 加权合并 KV ]        [ 低相似度低重要度: 直接丢弃 ]
+                        └──────────────┬──────────────┘
+                                       ▼
+               [ 注意力比率补偿 (Attention-Ratio Logit Compensation) ]
+               消除 Softmax 分母塌陷 (Attention Sag) ──► 免训练高压缩保真
+```
+
+#### 🎯 背景与痛点剖析 (Problem Statement)
+* **为什么免训练剪枝/合并会导致“注意力塌陷（Attention Sag）”**：当我们在推理期丢弃或合并大量历史 Token 后，参与 Softmax 计算的 Key 数量从 $N$ 锐减至 $M$（$M \ll N$）。若直接对剩余 $M$ 个 Token 的内积得分做标准 Softmax 归一化，原本被大量被删 Token 分担的分母配分函数质量消失，导致剩余 Token（或合并簇）的注意力权重被人为膨胀或失衡，深层表征模长发生剧烈偏移。
+
+#### 💡 核心方法与数学推导 (Mathematical Formulations)
+1. **软余弦门控决定“合并还是丢弃” (Soft Cosine Gate for Merge-or-Drop)**：
+   - 给定被淘汰候选 Token $i$ 及其在保留集合中的最近邻锚点 $j^*$，计算其 Value 向量的余弦相似度 $s_i = \cos(v_i, v_{j^*})$；
+   - 通过平滑门控函数 $g(s_i) = \sigma(\alpha (s_i - \tau))$ 动态决定将其特征并入锚点 $j^*$（当 $s_i > \tau$）还是直接丢弃（当 $s_i \le \tau$）。
+2. **注意力比率对数补偿 (Attention-Ratio Compensation)**：
+   - 若锚点 $j^*$ 吸收了等效计数为 $c_{j^*}$ 的历史 Token 质量，则在计算注意力 Logits 时显式加上对数质量补偿项：
+     $$\tilde{a}_{q, j^*} = \frac{q^\top k_{j^*}}{\sqrt{d_k}} + \ln(c_{j^*})$$
+   - 从而保证合并/剪枝前后的 Softmax 分母配分函数 $Z = \sum_j \exp(\tilde{a}_{q,j})$ 严格守恒！
+
+#### 📊 关键实验与结论 (Experiments & Findings)
+* 在 LongBench、RULER 及多轮数学推理基准上，免训练实现 **5x–10x KV Cache 压缩**，通过引入对数分母补偿项，消除了高压缩比下 80% 以上的精度退化。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发 (Relevance & Synergy with Our Works)
+* **🎯 锚定代表作与在研主线**：
+  * [Active Line: *Efficient Ads & VLA `HisTrim` (Hierarchical Progressive Token Drop + Softmax Denominator Mass Compensation)*]
+  * [Paper #15: *Demystifying When Pruning Works via Representation Hierarchies* (ICML 2026)]
+  * [Paper #16: *Transformer-Geometry* (EMNLP 2026, `arXiv:2609.15975`)]
+* **🔬 机理对比与技术演进**：
+  * **这篇工作独立验证了我们本周在 `Efficient Ads` 与 `axon` FlashAttention 推导中发现的核心机制！** 我们在 W39 周记（9/21）中明确指出：**当丢弃 Token 后，若直接把剩余保留 Token 的注意力权重重新归一化到 100%，会引发 $>1\times$ 的权重膨胀（分母偏差 / Denominator Bias）**，并推导出了 FlashAttention LSE（$L_i = m_i + \ln \ell_i$）下的 `$+\ln(M)$` 对数配分函数补偿与特殊 Token（Attention Sink）保留机制；
+  * `SelKV` 在免训练 KV 合并场景下观测到了完全相同的现象（其命名为 *Attention Sag*），并用 $+\ln(c_{j^*})$ 予以修正。
+* **💡 下一阶段研究（Next Research Directions）落地启发**：
+  * 在正在撰写的 `Efficient Ads`（冲刺 NAACL）正文中，可将 `SelKV` 与我们的分母偏差修正共同作为**“Token 稀疏化中的 Softmax 配分函数守恒定律”**的双向佐证，进一步强化我们把“分母偏差 $\leftrightarrow$ 位置编码与 Attention Sink”作为核心机制贡献（而非工程补丁）的理论厚度！
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-26_ai_paper_notes.md`
+
+
+---
+
+### 2.6 [2026-09-26] 🤖 *VLA-Pruner: Temporal-Aware Dual-Level Visual Token Pruning for Efficient Vision-Language-Action Inference*
+> **聚焦领域**：Vision-Language-Action (VLA) · Embodied AI · Visual Token Pruning · Temporal Consistency  
+> **arXiv**：[`arXiv:2511.16449`](https://arxiv.org/abs/2511.16449)
+
+```
+  连续控制帧视觉流 ──► [ 层级一 (Prefill): 跨模态指令-视觉语义重要度评估 ]
+                                           │
+                                           ▼
+                       [ 层级二 (Decode): 时域指数平滑动作相关性追踪 S_t = λS_{t-1} + (1-λ)A_t ]
+                                           │
+                                           ▼
+                       [ Combine-then-Filter 联合剪枝: 避免浅层误删关键操控锚点 ]
+```
+
+#### 🎯 背景与痛点剖析 (Problem Statement)
+* **“语义显著性”与“动作控制必要性”的错位（Semantic-Action Gap）**：在机械臂精细操控任务（如 LIBERO）中，单帧静态视觉编码器认为显著的背景物体，未必是当前动作步（Action Chunk）夹爪需要接触的目标；反之，若在浅层仅凭静态视觉注意力盲目丢弃大量 Patch Token，会导致深层 Action Expert 丢失空间几何锚点，引发轨迹剧烈抖动。
+
+#### 💡 核心方法与数学实现 (Mathematical Formulations)
+1. **双层重要度融合准则 (Combine-then-Filter Dual-Level Criterion)**：
+   - 同时提取语言指令在 Prefill 阶段对第 $i$ 个视觉 Token 的语义关注度 $I_{\text{sem}}^{(i)}$，以及解码器生成动作 Token 时的交叉注意力得分 $I_{\text{act}, t}^{(i)}$；
+2. **跨时间步动作相关性平滑 (Temporal Action Smoothing)**：
+   - 利用连续控制帧之间的时间连续性，引入历史动作注意力动量缓存：
+     $$\tilde{I}_{\text{act}, t}^{(i)} = \lambda \tilde{I}_{\text{act}, t-1}^{(i)} + (1 - \lambda) I_{\text{act}, t}^{(i)}$$
+   - 仅保留综合得分 $S_t^{(i)} = I_{\text{sem}}^{(i)} \cdot \tilde{I}_{\text{act}, t}^{(i)}$ 最高的视觉 Token 子集。
+
+#### 📊 关键实验与结论 (Experiments & Findings)
+* 在 OpenVLA 与主流机器人操控基准（LIBERO-Spatial / Object / Goal / Long）上，剔除 **50%–75% 视觉 Token** 仍保持与全量 Token 持平的任务成功率，端到端控制频率显著提升。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发 (Relevance & Synergy with Our Works)
+* **🎯 锚定代表作与在研主线**：
+  * [Active Line: *Physical AI (`VLADrop` / `DTR` / `HiSTrim` Exclude-Self Value-Space Perp KV256)*]
+  * [Paper #8: *Understanding and Harnessing Sparsity for Unified Multimodal Models* (TMLR 2026)]
+  * [Paper #9: *Uncovering the Redundancy in Transformers via Layer Dropping* (TMLR 2025)]
+* **🔬 机理对比与技术演进**：
+  * 我们在 W38 周记（9/15–9/17）中深刻总结了两条核心定律：（1）**Layer 0（纯 ID Embedding、尚未经过上下文交互）绝不能直接做激进 Token Drop**，必须在表征充分上下文化之后再按浅层保守、深层激进的曲线压缩；（2）**VLA 的鲁棒性来源于三个时间尺度的“伤口愈合（Wound Healing）”纠错通道**（步内注意力、步间去噪、episode 内周期性视觉重锚）；
+  * `VLA-Pruner` 的时域平滑动量 $\tilde{I}_{\text{act}, t}$ 恰恰显式利用了我们指出的第三层“episode 内时域连续重锚”特性！
+* **💡 下一阶段研究（Next Research Directions）落地启发**：
+  * 在 `Physical AI` (MLSys) 论文中，可将 `VLA-Pruner` 纳入 Related Work 与对比讨论，突出我们 **全栈四维协同压缩（数据 DTR + Token `HiSTrim` + 层 `VLADrop/Loop` + 步数 `SnapFlow` 单步蒸馏）** 相比单一视觉 Token 剪枝在真实硬件延迟（Batch=1 访存带宽瓶颈）上的系统级代差优势。
+
+---
+
+## 🔥 板块二：全球前沿热点精选 (Trending Frontier)
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/openvla-oft/` & `models/pi0.5/` (Dual-Level Temporal + Action Token Pruning)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-26_ai_paper_notes.md`
+
+
+---
+
+### 2.7 [2026-09-25] Fully Looped Transformer: Stabilizing Looped Models via Attention Injection and Residual Scaling
+
+* **论文信息**：`arXiv:2605.18797` (2026-05)
+* **核心关键词**：Fully Looped Transformer、Attention Injection、Anchor KV Grounding、Gradient Oscillation Prevention
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Fully Looped Transformer with Parameter-Free Initial Attention Injection    |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Initial Pass (k=0): Input Embedding H^{(0)} ---> Compute Anchor (K^{(0)}, V^{(0)})|
+|                                        |                                          |
+|                                        v                                          |
+|  Loop Iteration k = 1 .. K:                                                       |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Anchor-Injected Multi-Head Attention (零参数初始锚点键值注入)            |  |
+|  |    \tilde{K}^{(k)} = (1 - \lambda_k) K^{(k)} + \lambda_k K^{(0)}            |  |
+|  |    \tilde{V}^{(k)} = (1 - \lambda_k) V^{(k)} + \lambda_k V^{(0)}            |  |
+|  |    Prevents representation drift & provides direct gradient highway to k=0  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Unit-Sphere / Variance-Preserving Residual Update                        |  |
+|  |    H^{(k+1)} = \text{Norm}\big( H^{(k)} + \frac{1}{\sqrt{K}} f_\theta(H^{(k)}, \tilde{K}^{(k)}, \tilde{V}^{(k)}) \big)|
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **深层循环中的“初始锚点遗忘”与反向传播雅可比谱半径失控**：当一个循环 Transformer 连续迭代 $K \ge 8$ 步时，第 $k$ 步的隐状态 $H^{(k)}$ 经过反复的非线性自注意力和 FFN 变换后，逐渐丢失了原始输入 Token 的精细词法锚点信息；同时在反向传播（BPTT）中，共享权重连乘 $\prod_{k=1}^K \big(I + \frac{\partial f_\theta}{\partial H^{(k)}}\big)$ 极易引发梯度震荡或消失。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **零参数初始注意力注入（Parameter-Free Attention Injection）**：
+   缓存首轮（$k=0$）计算得到的初始键值张量 $(K^{(0)}, V^{(0)})$。在后续任意第 $k \in \{1, \dots, K\}$ 次循环中，通过凸组合或拼接将初始锚点注入当前步的注意力键值中：
+   $$O^{(k)} = \text{Softmax}\left( \frac{Q^{(k)} \big( (1-\lambda) K^{(k)} + \lambda K^{(0)} \big)^\top}{\sqrt{d_k}} \right) \Big( (1-\lambda) V^{(k)} + \lambda V^{(0)} \Big)$$
+   这一设计在计算图上为每一个循环步 $k$ 建立了一条直通初始表征 $(K^{(0)}, V^{(0)})$ 的**一阶梯度短路高速通道（Direct Gradient Highway）**：
+   $$\frac{\partial \mathcal{L}}{\partial H^{(0)}} = \frac{\partial \mathcal{L}}{\partial H^{(K)}} \prod_{k=1}^K J_k + \lambda \sum_{k=1}^K \frac{\partial \mathcal{L}}{\partial O^{(k)}} \frac{\partial O^{(k)}}{\partial (K^{(0)}, V^{(0)})} \frac{\partial (K^{(0)}, V^{(0)})}{\partial H^{(0)}}$$
+   从而彻底消除了高循环步数下的梯度消失与震荡！
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在完全不增加任何额外参数（0 Extra Parameters）的条件下，Fully Looped Transformer 在 $K=8, 12$ 步循环预训练中完全消除了传统 Looped Transformer 的梯度尖峰（Gradient Spikes），验证集困惑度（PPL）降低 **`1.45`**，下游推理基准提升 **`+4.9%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接印证我们 `vla-loop` 定律（Lightweight Dropped-Span VLM Cross-KV Grounding）！**
+  * 我们在 `vla-loop` 中发现，当动作专家循环迭代 $K=3,4$ 步时，若每一步都强绑回初始锚点 VLM Prefix KV（即此处的 $(K^{(0)}, V^{(0)})$），即可完美阻止循环轨迹漂移！该论文的梯度短路公式为我们 `vla-loop` 的 Cross-KV Grounding 提供了极其漂亮的反向传播雅可比谱稳定性证明。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-25_ai_paper_notes.md`
+
+
+---
+
+### 2.8 [2026-09-25] On the Limits of Layer Pruning in Generative Reasoning LLMs
+
+* **论文信息**：`arXiv:2602.01997` (2026-02)
+* **核心关键词**：Limits of Layer Pruning、Sequential Circuit Depth、Multi-Step Arithmetic & Logic Degradation
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Limits of Layer Pruning: Shallow Knowledge Lookup vs. Compositional Depth   |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Task Type A: Fact Retrieval / Single-Hop QA (MMLU, ARC-Easy, HellaSwag)          |
+|    Parallel Associative Memory Circuits ---> Tolerates 30%-40% Layer Pruning!     |
+|                                                                                   |
+|  Task Type B: Multi-Step Compositional Reasoning (GSM8K, MATH, Symbolic Carry)    |
+|    Requires Sequential Circuit Depth D_{\min} >= m \cdot d_{\text{hop}}           |
+|    When remaining layers L_{\text{keep}} < D_{\min}:                              |
+|    ===> Sharp Cliff Collapse (Even with LoRA recovery!)                           |
+|                                        |                                          |
+|                                        v                                          |
+|  Solution: Convert Pruned Physical Layers into Shared Looped Iterations!          |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **层剪枝评估中的“多项选择幸存者偏差”**：大量层剪枝论文声称剪掉 30% 的层后在 HellaSwag、PIQA、Winogrande 甚至 MMLU 选择题上保留了 95% 性能。然而作者通过系统性压力测试发现，同一批被剪枝模型在自由生成的多步算术、代码执行追踪与符号逻辑推理任务上性能暴跌超过 **40%–65%**。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **基于计算复杂性理论的串行电路深度下界（TC$^0$ Sequential Depth Lower Bound）**：
+   单个自注意力+FFN 层属于常数深度阈值电路类 $\text{TC}^0$。对于包含 $m$ 步嵌套函数复合 $g_m \circ g_{m-1} \circ \dots \circ g_1(x)$（如多位数连加进位链或 $m$ 跳变量代换）的单个前向步推理，若没有外部 CoT Token 展开，模型内部必须至少具备 $L_{\text{eff}} \ge m \cdot c_{\text{hop}}$ 个串行非线性消息传递层。
+   一旦物理层剪枝使剩余层数 $L_{\text{keep}} = (1 - p) L < m \cdot c_{\text{hop}}$，任何静态线性适配器或宽度扩容都无法弥补串行电路深度的缺失：
+   $$\inf_{\theta \in \Theta_{L_{\text{keep}}}} \mathbb{P}\big( f_\theta(x) \neq g_m \circ \dots \circ g_1(x) \big) \ge \frac{1}{2} - \exp\big(-\Omega(N^{\epsilon})\big) \quad \text{whenever } L_{\text{keep}} < m \cdot c_{\text{hop}}$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 实验精确测定了 Llama-3-8B/70B 与 Qwen-2.5 在不同推理跳数 $m \in \{2, 3, 4, 5\}$ 下的临界剩余层数 $L_{\text{crit}}(m)$，并证明当物理层被剪除后，**唯有通过测试期层循环（Layer Looping）恢复有效串行深度 $L_{\text{eff}}$**，才能跨过生成式推理的电路深度下界！
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **为我们为何从单纯的静态层剪枝（`vla-dtr` / *Layer Dropping* TMLR 2025）走向“层剪枝 + 循环精化协同（`vla-loop`）”提供了最坚实的复杂度理论支撑！**
+  * 在撰写我们的论文导论（Introduction）与理论动机（Motivation）时，该定理可直接引用：静态深度剪枝省下了显存但突破了串行复合电路深度下界 $L_{\text{crit}}$，而通过 1-Pass 主干 + LoRA 循环级联恰好以零额外主干显存恢复了所需的有效复合深度 $L_{\text{eff}}$！
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-25_ai_paper_notes.md`
+
+
+---
+
+### 2.9 [2026-09-25] Test-Time Scaling in Reasoning LLMs: Inference Regimes and Compute-Optimal Verification
+
+* **论文信息**：`arXiv:2608.02145` (2026-08)
+* **核心关键词**：Test-Time Scaling Regimes、Best-of-N vs. Sequential Revision vs. Tree Search、Compute-Optimal Frontier
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Compute-Optimal Switching Across Three Test-Time Scaling Regimes            |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Query Difficulty d(q) & Token Budget B:                                          |
+|    * Regime I  (Low d, Small B): Parallel Best-of-N + PRM Voting                  |
+|    * Regime II (Med d, Med B)  : Sequential Self-Revision Conditioned on Verifier |
+|    * Regime III(High d, Large B):Verifier-Guided MCTS / Lookahead Beam Search     |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **单一测试时扩展策略在不同难度区间的次优性**：盲目对所有题目使用 Best-of-64 并行采样在极难题（单次生成成功率 $<1\%$）上完全无效，而对简单题使用串行多轮反思又容易引发“过度思考（Overthinking）”把对的改错。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **三体制成功概率的解析缩放定律（Analytical Scaling Law across Regimes）**：
+   设基础单次正确率为 $p_0(q)$，验证器假阳性率为 $\alpha$，串行修正转移收益为 $\gamma_{\text{rev}}$。在预算 $N$ 下，并行采样与串行反思的边际收益交叉点满足：
+   $$1 - (1 - p_0)^N \cdot (1 - \alpha) \;\lessgtr\; 1 - (1 - p_0) \prod_{k=1}^{N-1} (1 - \gamma_{\text{rev}} p_k)$$
+   据此推导出随先验难度 $p_0(q)$ 动态路由推理体制的闭式门控阈值。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在相同总 FLOPs 预算下，自适应三体制路由比单一固定体制在 MATH-500 与 LiveCodeBench 上节省 **52% 推理算力** 或提升 **`+4.8%`** 准确率。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 *EffiR* (ACL 2026) & `vla-loop`（Once-for-All Switchable Multi-Gear Loops）高度协同**：根据初始状态不确定性在 $K=1, 2, 4$ 档位间动态切换，正是测试时算力帕累托最优的体现。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-25_ai_paper_notes.md`
+
+
+---
+
+### 2.10 [2026-09-24] Training-Free Looped Transformers: Test-Time Mid-Stack Layer Looping
+
+* **论文信息**：`arXiv:2605.23872` (2026-05)
+* **核心关键词**：Training-Free Looped Transformer、Test-Time Depth Scaling、Mid-Stack Fixed-Point Iteration
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Training-Free Looped Transformers: Test-Time Mid-Stack Layer Looping        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Frozen Checkpoint: [Shallow Layers 1..l_a-1]                                     |
+|                              |                                                    |
+|                              v                                                    |
+|        +---> [Mid-Stack Reasoning Span: Layers l_a .. l_b] ---+                   |
+|        |                     |                                |                   |
+|        |          Loop K times at Test Time                    |                   |
+|        +--- Damped Contraction: h <- (1-\eta)h_{\text{in}} + \eta h_{\text{out}}  |
+|                              |                                                    |
+|                              v                                                    |
+|                     [Deep Readout Layers l_b+1..L]                                |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **能否在不重新训练的情况下让现成开源大模型享受循环深度扩展？** 以往工作普遍认为 Looped Transformer 必须从头带循环拓扑预训练，否则直接把某一层重复执行会导致隐状态偏离后续层期望的输入流形。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **中段层块的近似压缩不动点迭代性质（Mid-Stack Contractive Mapping）**：
+   作者分析发现，在预训练 Transformer 的中间深层区间 $[l_a, l_b]$（通常位于 $0.4L \sim 0.75L$），相邻层的输入输出处于同一缓变语义流形上，复合块算子 $\mathcal{F}_{l_a:l_b}$ 在局部切空间上近似构成压缩不动点精化映射。
+2. **阻尼流形拉回循环更新（Damped Manifold-Preserving Loop）**：
+   为防止在测试期重复调用 $\mathcal{F}_{l_a:l_b}$ 时隐状态范数越界，在第 $k$ 次额外循环后施加范数匹配与阻尼凸组合：
+   $$h^{(k)} = \frac{\|h^{(0)}\|_2}{\|\tilde{h}^{(k)}\|_2} \tilde{h}^{(k)}, \qquad \text{where } \tilde{h}^{(k)} = (1 - \eta) h^{(k-1)} + \eta \mathcal{F}_{l_a:l_b}(h^{(k-1)})$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在完全零训练（Zero Finetuning）的 **Llama-3-8B** 与 **Mistral-7B** 上，对中段 6 层额外循环 $K=2$ 次，在 GSM8K、ARC-Challenge 与逻辑推理任务上直接获得 **`+2.1%` 至 `+3.8%`** 的免费准确率提升。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `vla-loop`（Layer-Specific Span-Bounded Dynamic Halting）及 *Transformer-Geometry* (`arXiv:2609.15975`, EMNLP 2026) 高度同源**：
+  * 该文通过范数重缩放 $\frac{\|h^{(0)}\|_2}{\|\tilde{h}^{(k)}\|_2}$ 抑制测试期循环发散，本质上正是我们在 *Transformer-Geometry* 中指出的**抑制平行径向膨胀、仅保留球面切向正交精化**！
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-24_ai_paper_notes.md`
+
+
+---
+
+### 2.11 [2026-09-24] MixKV: Balancing Importance and Diversity for Modality-Specific KV Cache Compression
+
+* **论文信息**：`arXiv:2510.20707` (2025/2026)
+* **核心关键词**：Importance-Diversity Trade-off、Modality-Specific KV Compression、Cosine Repulsion Selection
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       MixKV: Balancing Importance and Diversity in Multimodal KV Compression      |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Visual KV Cache (High Spatial Redundancy) vs. Text KV Cache (High Info Density)  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | Modality-Adaptive Submodular Selection Objective                            |  |
+|  |    \max_{S: |S|=B} \sum_{i \in S} \text{Imp}(i) - \lambda_{\text{mod}} \sum_{i,j \in S} \cos(K_i, K_j)|
+|  |    * Vision modality: High \lambda_{\text{vis}} avoids picking 50 tokens    |  |
+|  |      from the same salient foreground patch                                 |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **纯重要性排序在视觉模态上的“局部高光扎堆陷阱”**：在多模态长上下文中，视觉特征具有极强的空间局部相关性。若仅按注意力得分 Top-$B$ 挑选视觉 KV，预算内的 $B$ 个槽位会被画面中心最显著物体的几十个高度相似的相邻图像块占满，而画面边缘的关键次要物体则被完全清空。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **模态自适应重要性-多样性边际增益准则（Modality-Adaptive Marginal Gain）**：
+   在贪心或分块并行选择保留集 $S$ 时，第 $j$ 个候选 Token 的综合得分为其注意力重要性减去其与已选集合在 Key/Value 空间的最大余弦冗余度：
+   $$\Phi(j \mid S) = s_{\text{imp}}(j) - \lambda_m \cdot \max_{i \in S} \left( \frac{\langle K_j, K_i \rangle}{\|K_j\|_2 \|K_i\|_2} \right)$$
+   其中视觉模态的排斥权重 $\lambda_{\text{vis}} > \lambda_{\text{text}}$，根据各层模态内平均余弦相似度自动校准。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **MileBench**、**Video-MME** 与多图长上下文评测中，MixKV 在 **10% 极限缓存预算**下比 SnapKV 与 PyramidKV 平均提升 **`+5.3%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `vla-dtr` 和 `Efficient Ads / HisTrim` 的正交子空间选择完全一致**：在多视角机器人相机或长用户历史序列中，通过 Gram-Schmidt 正交投影排斥共线项，正是最大化子空间体积（Determinantal Point Process）的快速实现。
+
+---
+
+## 🔥 板块二：全球前沿热点精选 (Trending Frontier)
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-24_ai_paper_notes.md`
+
+
+---
+
+### 2.12 [2026-09-24] AEWM: Agent-Editing World Model with Inference-Time Action Judge and State Revision
+
+* **论文信息**：`arXiv:2609.28416` (2026-09)
+* **核心关键词**：Agent-Editing World Model、Inference-Time State Revision、Action Judge、Latent Trajectory Correction
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       AEWM: Agent-Editing World Model (Action Judge & Inference State Revision)   |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Agent State z_t ---> Propose Candidate Action a_t ---> World Model Predicts \hat{z}_{t+1}|
+|                                                                |                  |
+|                                                                v                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Action Judge J_\phi(z_t, a_t, \hat{z}_{t+1})                             |  |
+|  |    Detects dead-ends, safety violations, or sub-goal regression BEFORE exec |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                |                  |
+|                                             If Judge Score < \tau_{\text{pass}}   |
+|                                                                v                  |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Active State Revision Operator \mathcal{E}_\psi(z_t, \hat{z}_{t+1})      |  |
+|  |    Edits internal memory/belief state z_t -> z_t^{\text{revised}} to prune  |  |
+|  |    corrupted assumptions and resample clean action a_t^*                    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **仅重采样动作无法清除已污染的内部记忆状态**：在长程 Web 操作或代码修复任务中，当智能体的内部信念/上下文记忆 $z_t$ 已经混入了错误的假设时，单纯利用世界模型拒绝当前动作并从同一状态 $z_t$ 重新采样，依然会反复生成同类的错误动作。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **基于反事实进度判别的内部状态编辑算子（Counterfactual State Revision）**：
+   当世界模型预测下一状态 $\hat{z}_{t+1} = f_{\text{WM}}(z_t, a_t)$ 未能通过动作评判器 $J_\phi(z_t, a_t, \hat{z}_{t+1}) < \tau$ 时，触发状态编辑器 $\mathcal{E}_\psi$ 直接在信念状态/工作记忆上施加反事实修正增量：
+   $$z_t^{\text{rev}} = z_t + \mathcal{E}_\psi\big( z_t, a_t, \hat{z}_{t+1}, \nabla_{z_t} J_\phi(z_t, a_t, \hat{z}_{t+1}) \big)$$
+   随后基于修正后的干净状态 $z_t^{\text{rev}}$ 重新生成可执行动作 $a_t^* \sim \pi_\theta(\cdot \mid z_t^{\text{rev}})$。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **VisualWebArena**、**OSWorld** 与长程具身任务上，AEWM 将不可逆错误操作率降低 **52%**，端到端任务成功率比无状态编辑的 Tree-of-Thoughts 高出 **`+10.8%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **对我们 `vla-loop` 动态循环早停与修正（Bridge-Readout Dynamic Halting）的启发**：在循环迭代中若检测到预测轨迹能量异常，可通过低秩正交校正算子直接修正潜状态而非盲目增加循环次数。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-24_ai_paper_notes.md`
+
+
+---
+
+### 2.13 [2026-09-24] DriveMoE: Mixture-of-Experts for Vision-Language-Action Model in End-to-End Autonomous Driving
+
+* **论文信息**：`arXiv:2505.16278` (2025/2026)
+* **核心关键词**：End-to-End Autonomous Driving、Scene-Specialized Vision MoE、Skill-Specialized Action MoE、Flow-Matching Planner
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       DriveMoE: Dual-Stage Vision & Action MoE for Autonomous Driving VLA         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  6-Camera Surround View ---> [Stage 1: Scene-Specialized Vision MoE]              |
+|                              Routes camera views (Front/Rear/Corner) & weather    |
+|                                        |                                          |
+|                                        v                                          |
+|  Navigation Command + Ego State ---> [Stage 2: Skill-Specialized Action MoE]      |
+|                              Built on Flow-Matching Planner: routes to specialized|
+|                              experts for Lane-Keep, Unprotected Turn, Avoidance   |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **端到端自动驾驶中的长尾机动动作被直行样本淹没**：在驾驶数据集中，90% 以上为简单直行跟车，稠密 VLA 规划器在面对无保护左转、施工改道紧急避障等长尾场景时因梯度被简单样本主导而表现迟钝。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **视角感知视觉 MoE + 驾驶技能流匹配动作 MoE**：
+   动作生成头采用条件流匹配架构，每个专家 $e \in \{1, \dots, E_{\text{act}}\}$ 对应特定驾驶技能子流形，由高阶导航意图 $c_{\text{nav}}$ 与场景特征联合路由：
+   $$v_{\text{drive}}(a_\tau, \tau \mid z_{\text{scene}}, c_{\text{nav}}) = \sum_{e \in \text{Top-}k} g_e(z_{\text{scene}}, c_{\text{nav}}) \cdot v_e(a_\tau, \tau \mid z_{\text{scene}})$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **Bench2Drive** 闭环评测与 **nuScenes** 开环基准上，DriveMoE 将复杂交叉路口与紧急避障长尾场景的驾驶得分（Driving Score）大幅提升 **`+9.4` 分**，碰撞率降低 **36%**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `ads-rsi`（长尾稀疏切片保护）及 `vla-distillation` 的直接联动**：在多技能流匹配动作头中通过技能感知 LoRA 专家隔离高频常规动作与长尾极限动作，可有效防止蒸馏过程中的长尾退化。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-24_ai_paper_notes.md`
+
+
+---
+
+### 2.14 [2026-09-24] Decision Representation Transitions in Pruning: Silent vs. Decisive Phases
+
+* **论文信息**：`arXiv:2605.07271` (2026-05)
+* **核心关键词**：Decision Representation Phase Transition、Silent vs. Decisive Layers、Linear Probe Separability、Pruning Collapse Boundary
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Decision Representation Transitions: Silent vs. Decisive Layer Phases       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Layer Index l:  1 --------> l^* - 1  |  l^* --------> l^* + \Delta  |  ... ---> L|
+|                  [   Silent Phase   ] | [ Decisive Phase Transition ] | [Refinement]|
+|                  Distributed Evidence | Abrupt jump in Logit Lens &   |           |
+|                  Accumulation         | Linear Probe Separability     |           |
+|                                                                                   |
+|  Pruning Law: Pruning inside Silent/Refinement = Linear graceful degradation;     |
+|               Pruning across Phase Transition [l^*, l^*+\Delta] = Total Collapse! |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **为何剪除同样数量的层，有时精度仅降 1%，有时却瞬间跌至随机猜测（0%）？** 传统层重要性指标缺乏对决策信息在深度方向如何涌现的相变刻画。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **决策表征相变点（Decisive Phase Transition Point $l^*$）的形式化检测**：
+   定义第 $l$ 层隐状态对最终输出决策类别 $Y$ 的互信息增益率（通过 Logit Lens 分布与最终层分布的对称 KL 二阶差分度量）：
+   $$\Delta I_{\text{dec}}(l) = D_{\text{KL}}\big( P^{(L)}(Y \mid X) \,\|\, P^{(l-1)}(Y \mid X) \big) - D_{\text{KL}}\big( P^{(L)}(Y \mid X) \,\|\, P^{(l)}(Y \mid X) \big)$$
+   实验揭示 $\Delta I_{\text{dec}}(l)$ 并非随层深均匀分布，而是在窄区间 $[l^*, l^* + \Delta]$ 内呈现尖锐的脉冲式跃迁（将分散在多跳上下文中的隐式证据突然坍缩绑定为显式答案表征）。任何触碰该相变核区间的层剪枝都会切断证据绑定链条。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在多跳问答与算术推理任务中，避开相变区间 $[l^*, l^*+\Delta]$ 的相变感知剪枝在 **30% 剪枝率**下比传统余弦相似度剪枝提升 **`+18.5%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 *Demystifying When Pruning Works via Representation Hierarchies* (ICML 2026) 及 `vla-dtr` 的核心相变定律完全一致！**
+  * 这篇论文从决策互信息跃迁角度再次印证了我们在 ICML 2026 和 `vla-dtr`（Phase-Transition Laws）中提出的黄金准则：**绝不能剪除负责跨模态特征绑定与相变跃迁的桥梁层（Bridge/Decisive Layers）**，而应将剪枝预算集中在静默累积层与末端微调层。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-24_ai_paper_notes.md`
+
+
+---
+
+### 2.15 [2026-09-23] HetDPT: Rethinking Depth Pruning for Vision Transformers — A Heterogeneity-Aware Perspective
+
+* **论文信息**：`arXiv:2607.03784` (2026-07)
+* **核心关键词**：Heterogeneity-Aware Depth Pruning、Decoupled MHSA/FFN Pruning、Vision Transformers
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|      HetDPT: Heterogeneity-Aware Decoupled Sub-Layer Depth Pruning for ViTs       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Standard Block l:  X ---> [MHSA^{(l)} (Spatial Mixing)] ---> [FFN^{(l)} (Channel)]|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Sub-Layer Functional Heterogeneity Profiling (子层异构功能解耦剖析)      |  |
+|  |    Deep MHSA layers exhibit high spatial attention map redundancy;          |  |
+|  |    Shallow/Mid FFN layers exhibit higher channel transformation redundancy  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Independent Sub-Layer Pruning under Latency Constraint                   |  |
+|  |    Can prune MHSA^{(l)} while keeping FFN^{(l)} (or vice versa) with zero   |  |
+|  |    dimension mismatch via residual identity bypass                          |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **整块绑定剪枝（Coupled Block Pruning）忽略了注意力与 FFN 的深度角色错位**：传统深度剪枝总是将第 $l$ 层的 $( \text{MHSA}^{(l)}, \text{FFN}^{(l)} )$ 捆绑在一起同时保留或同时删除。然而在视觉与多模态编码器中，深层的空间跨 Token 交互（MHSA）早已收敛（注意力图趋于恒等或全局平均），但深层的逐 Token 特征非线性映射（FFN）仍在执行关键的语义分类投影。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **MHSA 与 FFN 异构解耦敏感度建模**：
+   分别为每个子层引入独立的二值门控 $(m_{\text{attn}}^{(l)}, m_{\text{ffn}}^{(l)}) \in \{0, 1\}^2$：
+   $$h_{\text{mid}}^{(l)} = h^{(l-1)} + m_{\text{attn}}^{(l)} \cdot \text{MHSA}^{(l)}\big(\text{LN}_1(h^{(l-1)})\big)$$
+   $$h^{(l)} = h_{\text{mid}}^{(l)} + m_{\text{ffn}}^{(l)} \cdot \text{FFN}^{(l)}\big(\text{LN}_2(h_{\text{mid}}^{(l)})\big)$$
+   利用泰勒二阶敏感度联合硬件实测延迟表 $\tau_{\text{attn}}, \tau_{\text{ffn}}$ 求解整数线性规划（ILP）：
+   $$\min_{\{m_{\text{attn}}^{(l)}, m_{\text{ffn}}^{(l)}\}} \sum_{l=1}^L \Big( (1 - m_{\text{attn}}^{(l)}) \Omega_{\text{attn}}^{(l)} + (1 - m_{\text{ffn}}^{(l)}) \Omega_{\text{ffn}}^{(l)} \Big) \quad \text{s.t.} \quad \sum_{l=1}^L \big( m_{\text{attn}}^{(l)} \tau_{\text{attn}} + m_{\text{ffn}}^{(l)} \tau_{\text{ffn}} \big) \le T_{\text{budget}}$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **DeiT**、**Swin** 与 **CLIP-ViT-L/14** 上，HetDPT 在相同 **1.5x–1.8x 硬件实测加速比** 下，比整块深度剪枝提升了 **`+1.9%` 至 `+3.2%`** 的 ImageNet 与多模态下游准确率。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 *Layer Dropping* (TMLR 2025) & `vla-dtr` 的子层解耦路由完美呼应**：在 VLA 视觉主干与动作专家的深度剪枝中，深层 Cross-Attention 往往比 FFN 更早饱和，采用解耦子层跳过可进一步压榨 15% 延迟。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-23_ai_paper_notes.md`
+
+
+---
+
+### 2.16 [2026-09-23] RT-VLA: Real-Time Vision-Language-Action Models via Knowledge Distillation
+
+* **论文信息**：`arXiv:2606.14010` (2026-06)
+* **核心关键词**：Real-Time VLA、Cross-Architecture Knowledge Distillation、Visual-Action Feature Alignment
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       RT-VLA: Real-Time Vision-Language-Action Model via Knowledge Distillation   |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Heavy Teacher VLA (7B VLM + Multi-Step Action Head)                              |
+|        |                                      |                                   |
+|        | Intermediate Visual-Language         | Continuous Action Trajectory      |
+|        | Relational Affinity Matrix           | Distribution Supervision          |
+|        v                                      v                                   |
+|  Compact Student RT-VLA (Sub-1B Vision-Language Backbone + Lightweight Head)      |
+|  ===> 44.8x Faster Vision-Mode Inference & High-Frequency Closed-Loop Control     |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **7B+ 视觉语言骨干限制了边缘端机器人的板载部署**：主流通用 VLA（如 OpenVLA、$\pi_0$）依赖 3B–7B 的 VLM 主干处理每帧高分辨率图像，在车载或机载边缘 GPU 上单帧推理高达数百毫秒。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **关系亲和矩阵蒸馏 + 动作分布联合对齐**：
+   由于教师与学生主干隐藏维度不同（$d_T \neq d_S$），RT-VLA 不做刚性逐元素回归，而是对齐归一化特征余弦关系矩阵 $G^{(T)} = \tilde{H}_T \tilde{H}_T^\top \in \mathbb{R}^{N \times N}$ 与动作输出：
+   $$\mathcal{L}_{\text{RT-VLA}} = \big\| \pi_S(x) - \pi_T(x) \big\|_1 + \lambda_{\text{rel}} \left\| \frac{H_S H_S^\top}{\|H_S H_S^\top\|_F} - \frac{H_T H_T^\top}{\|H_T H_T^\top\|_F} \right\|_F^2$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在机器人操作基准上，RT-VLA 将纯视觉模式下的编码与推理耗时降低 **44.8x**，端到端帧率突破 **60 Hz**，同时保留了 7B 教师模型 **96% 以上** 的任务成功率。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **为我们 `vla-distillation` 提供了极佳的跨尺度关系蒸馏损失项**：可将 $\big\| \tilde{H}_S \tilde{H}_S^\top - \tilde{H}_T \tilde{H}_T^\top \big\|_F^2$ 结合进我们的宽度+深度联合压缩（Tri-Orthogonal G19）中，免除维度对齐投影矩阵的参数开销。
+
+---
+
+## 🔥 板块二：全球前沿热点精选 (Trending Frontier)
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/openvla-oft/` (Relational Cosine Distillation for 60Hz Real-Time VLA)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-23_ai_paper_notes.md`
+
+
+---
+
+### 2.17 [2026-09-23] MELT: Memory-Efficient Looped Transformer — Decoupling Compute from Memory
+
+* **论文信息**：`arXiv:2605.07721` (2026-05)
+* **核心关键词**：Memory-Efficient Looped Transformer、Shared Cross-Loop KV Cache、Compute-Memory Decoupling
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|         MELT: Memory-Efficient Looped Transformer (Shared KV Cache Pool)          |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Standard Looped Transformer (K Loops):                                           |
+|    Stores separate KV^{(1)}, KV^{(2)}, ..., KV^{(K)} -> K x Memory Footprint!     |
+|                                                                                   |
+|  MELT Architecture:                                                               |
+|    Single Physical KV Cache Buffer \mathcal{C}_{KV} in HBM                        |
+|    Loop k=1..K reads & refines \mathcal{C}_{KV} via gated EMA update:             |
+|    \mathcal{C}_{KV}^{(k)} = (1 - \alpha_k) \mathcal{C}_{KV}^{(k-1)} + \alpha_k \text{Proj}_{KV}(h^{(k)})|
+|    ===> O(K) Compute Depth with strictly O(1) KV Cache Memory!                    |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **循环 Transformer 的“隐性 KV 缓存倍增陷阱”**：虽然 Looped Transformer 通过复用层权重将模型参数显存压缩为 $1/K$，但在自回归生成时，如果第 $t$ 个 Token 在第 $k$ 次循环时需要 Attend 到前序 Token $1 \dots t-1$ 在第 $k$ 次循环时的键值状态，就必须为全部 $K$ 次循环分别缓存独立的 $K^{(k)}, V^{(k)}$，导致 KV 缓存显存依然随循环步数 $K$ 线性增长！
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **跨循环指数移动平均共享 KV 缓存（Cross-Loop EMA Shared KV Cache）**：
+   对于历史已生成的上下文位置 $1 \dots t-1$，仅在显存中维护唯一一份最终收敛态的键值缓存 $(K_{\text{shared}}, V_{\text{shared}})$（即每个历史 Token 完成第 $K$ 次循环后的稳态 KV）。在当前位置 $t$ 执行第 $k \in \{1, \dots, K\}$ 次内部循环时，当前查询 $q_t^{(k)}$ 统一读取历史稳态缓存 $K_{\text{shared}, 1:t-1}$ 并结合当前步自键值 $(k_t^{(k)}, v_t^{(k)})$：
+   $$\text{Attn}_t^{(k)} = \text{Softmax}\left( \frac{q_t^{(k)} \big[ K_{\text{shared}, 1:t-1}; \; k_t^{(k)} \big]^\top}{\sqrt{d_k}} \right) \begin{bmatrix} V_{\text{shared}, 1:t-1} \\ v_t^{(k)} \end{bmatrix}$$
+   当第 $t$ 个 Token 完成全部 $K$ 步循环后，仅将其终端稳态 $(k_t^{(K)}, v_t^{(K)})$ 写入共享缓存池！
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 $K=4$ 与 $K=8$ 循环配置下，MELT 将长文本解码时的 **KV 缓存显存与带宽读取量直接削减 $75\%–87.5\%$（严格降至 $1/K$）**，同时在语言建模与数学推理上与保存全套每步 KV 的基线性能完全持平（差异 `<0.2%`）。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接印证我们 `vla-loop` 定律 v19/v20（1-Pass Backbone + Multi-Step LoRA-Only Cascade & Shared KV Grounding）**：在 Looped VLA 中，历史观测与前缀只需保存唯一一份稳态 KV 缓存，多步循环仅更新当前动作查询状态，从而将循环推理的内存带宽开销降到最低。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-23_ai_paper_notes.md`
+
+
+---
+
+### 2.18 [2026-09-23] HiMoE-VLA: Hierarchical Mixture-of-Experts for Generalist Vision-Language-Action Policies
+
+* **论文信息**：`arXiv:2512.05693` (2025/2026)
+* **核心关键词**：Hierarchical MoE、Generalist VLA Policy、Task-Skill Decoupled Routing、Gradient Conflict Mitigation
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       HiMoE-VLA: Hierarchical Mixture-of-Experts for Generalist VLA Policies      |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Language Goal + Visual State ---> [Level-1: Task/Embodiment Router G_{\text{task}}]|
+|                                           |                                       |
+|                   Selects Domain Expert Group \mathcal{G}_m                       |
+|                                           v                                       |
+|         Proprioception + Local Patch ---> [Level-2: Skill Primitive Router G_{\text{skill}}]|
+|                                           |                                       |
+|                   Activates Fine-Grained Motor Primitives (Reach / Grasp / Place) |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **异构本体与多任务联合训练中的“扁平路由混淆”**：在跨机械臂本体、跨数十种操作任务的通用 VLA 训练中，单层扁平 MoE 路由器容易按表层视觉背景而非底层运动学技能聚类，导致不同任务间出现严重的负迁移。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **双层语义-运动解耦条件路由（Bi-Level Semantic-Kinematic Conditional Routing）**：
+   高层路由器 $G_{\text{task}}(c_{\text{lang}}, I_{\text{global}})$ 根据语言指令与全局视觉场景选择任务簇 $m \in \{1, \dots, M\}$，低层路由器 $G_{\text{skill}}^{(m)}(s_{\text{prop}}, I_{\text{wrist}})$ 根据本体关节状态与腕部相机高频特征在簇内选择动作基元专家 $e \in \mathcal{E}_m$：
+   $$P(e \mid x) = \sum_{m=1}^M G_{\text{task}}(m \mid c_{\text{lang}}, I_{\text{global}}) \cdot G_{\text{skill}}^{(m)}(e \mid s_{\text{prop}}, I_{\text{wrist}}) \cdot \mathbb{I}(e \in \mathcal{E}_m)$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在跨 50+ 任务的 Open-X Embodiment 与仿真套件上，HiMoE-VLA 比同激活参数量的稠密 VLA 与单层 MoE-VLA 平均成功率提升 **`+8.7%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `ads-rsi` 中的 GemTagger 分层路由与 *Router-Tuning* (EMNLP 2025) 高度契合**：将高层任务上下文路由与底层高频状态路由树状解耦，可大幅提升细粒度专家的专业化纯度。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/lingbot-vla/` & `models/gigabrain-0/` (Hierarchical Task + Skill MoE Routing)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-23_ai_paper_notes.md`
+
+
+---
+
+### 2.19 [2026-09-22] SnapFlow: One-Step Action Generation for Flow-Matching VLAs via Progressive Self-Distillation
+
+* **论文信息**：`arXiv:2604.05656` (2026-04)
+* **核心关键词**：Flow-Matching VLA、1-NFE Action Generation、Progressive Self-Distillation、Chord Velocity Matching
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|      SnapFlow: 1-NFE Action Generation for Flow-Matching VLAs via Self-Distill    |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  VLM Prefix KV Cache (Visual + Language) + Action Noise A_0 ~ N(0, I)             |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Two-Step Euler Teacher Chord Construction (两步欧拉教师割线目标构造)     |  |
+|  |    a_{t + \Delta t} = a_t + \Delta t \cdot v_{\theta^-}(a_t, t, \Delta t)   |  |
+|  |    a_{t + 2\Delta t} = a_{t+\Delta t} + \Delta t \cdot v_{\theta^-}(a_{t+\Delta t}, t+\Delta t, \Delta t)|
+|  |    Target Chord Velocity: \bar{u}_{\text{chord}} = \frac{a_{t+2\Delta t} - a_t}{2\Delta t}|
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Progressive Halving Schedule: N = 16 -> 8 -> 4 -> 2 -> 1 NFE             |  |
+|  |    Student predicts single-step jump: \hat{A}_1 = A_0 + v_\theta(A_0, 0, 1) |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **多步 ODE 动作去噪拖慢具身实时控制频率**：以 $\pi_0$、$\pi_{0.5}$ 与 GR00T 为代表的现代视觉语言动作模型（VLAs）普遍采用条件流匹配（Conditional Flow Matching）动作专家，在推理时需对动作块（Action Chunk $A \in \mathbb{R}^{H \times d_a}$）执行 $N=10$ 步欧拉积分。尽管动作专家本身参数量较小（如 300M），但 10 次串行交叉注意力与 FFN 前向传播占用了超过 65% 的端到端推理延迟。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **步长条件化割线速度场自蒸馏（Step-Conditioned Chord Velocity Self-Distillation）**：
+   扩展动作专家网络输入为 $(a_t, t, \delta)$，其中 $t \in [0, 1)$ 为当前流时刻，$\delta \in \{2^{-k}\}$ 为目标积分跨度（Step Size）。当跨度从 $\delta$ 倍增至 $2\delta$ 时，利用指数移动平均（EMA）目标网络 $\theta^-$ 执行两次半步积分生成割线目标速度（Chord Velocity）：
+   $$\tilde{a}_{t+\delta} = a_t + \delta \cdot v_{\theta^-}(a_t, t, \delta \mid C_{\text{VLM}})$$
+   $$u_{\text{chord}}(a_t, t, 2\delta) = \frac{1}{2} v_{\theta^-}(a_t, t, \delta \mid C_{\text{VLM}}) + \frac{1}{2} v_{\theta^-}(\tilde{a}_{t+\delta}, t+\delta, \delta \mid C_{\text{VLM}})$$
+   最小化单步跨度预测与双步合成割线之间的 Huber/L2 损失：
+   $$\mathcal{L}_{\text{SnapFlow}}(\theta) = \mathbb{E}_{t, \delta, a_0} \Big[ \big\| v_\theta(a_t, t, 2\delta \mid C_{\text{VLM}}) - \text{sg}\big(u_{\text{chord}}(a_t, t, 2\delta)\big) \big\|_2^2 \Big]$$
+2. **推理期零迭代一步生成（1-NFE Inference）**：
+   当 $\delta = 1, t = 0$ 时，只需单次前向传播即可直接输出完整动作序列 $\hat{a}_1 = a_0 + v_\theta(a_0, 0, 1 \mid C_{\text{VLM}})$。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **LIBERO**（Spatial / Object / Goal / Long）与真实机械臂双臂操作基准上，SnapFlow 将动作专家推理步数从 10 NFE 压缩至 **1 NFE**，动作生成阶段延迟降低 **8.4x**，端到端控制频率提升 **2.6x**，同时保持了原始 10 步模型 **98.5%** 以上的成功率。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **正是我们 `vla-distillation` 技能库的核心基石之一（定律 G16–G21 & G27 v3）！**
+  * 我们在 `vla-distillation` 中已经系统证明：单纯的 SnapFlow 1-NFE 在高曲率接触任务（如 LIBERO-10 长程插拔）中若不配合 **Perp-Directional Decomposition（G20 正交-平行速度场解耦）**、**MeanFlow + IMM + SFP 联合目标（G21）** 以及 **Stage-2 Cumulative Rank-128 Weight Folding（G27 v3）**，会出现约 1.5%–2.5% 的末端精度折损；将 SnapFlow 的渐进弦长目标与我们的四支柱 Data-RSI 协同设计结合，即可在零推理分支开销下实现超越 10-NFE 教师的无损 1-NFE/3-NFE 闭环控制。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/pi0.5/` (1-NFE Progressive Shortcut Velocity Self-Distillation)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-22_ai_paper_notes.md`
+
+
+---
+
+### 2.20 [2026-09-22] LightKV: Make Your LVLM KV Cache More Lightweight
+
+* **论文信息**：`arXiv:2605.00789` (2026-05)
+* **核心关键词**：LVLM KV Cache Compression、Cross-Modality Message Passing、Prompt-Guided Visual Aggregation
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|            LightKV: Prompt-Guided Cross-Modality Visual KV Aggregation            |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Visual Tokens V_{1:N_v} + Text Instruction Tokens T_{1:N_t}                      |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Cross-Modality Message Passing Score (文本指令引导的视觉重要性传递)      |  |
+|  |    s_i = \frac{1}{N_t} \sum_{j \in \text{Text}} A_{j \to i}^{\text{cross}}  |  |
+|  |    Partition V into Anchor Set \mathcal{A} (Top-K) & Redundant Set \mathcal{R}|
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Soft Bipartite KV Aggregation (二分图软聚合而非硬丢弃)                   |  |
+|  |    \tilde{K}_a = K_a + \sum_{r \in \mathcal{R}} W_{a,r} K_r,                |  |
+|  |    \tilde{V}_a = V_a + \sum_{r \in \mathcal{R}} W_{a,r} V_r                 |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **硬丢弃（Hard Eviction）导致的背景空间上下文丢失**：高分辨率多模态模型（LVLM）单张图产生 576–2,304 个视觉 Token。直接硬丢弃低注意力视觉 Token 会抹除背景空间相对位置与全局计数信息（例如数物体个数任务）。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **指令引导的二分图 KV 软合并（Prompt-Guided Bipartite KV Merging）**：
+   利用文本指令 Token 对视觉 Token 的跨模态注意力选出锚点集合 $\mathcal{A}$ 与待合并集合 $\mathcal{R}$。对于每个被淘汰的视觉 Token $r \in \mathcal{R}$，计算其与锚点 $a \in \mathcal{A}$ 在 Key 空间的余弦相似度分布 $W_{a,r} = \text{Softmax}_a(\beta \cos(K_a, K_r))$，并执行注意力守恒的加权合并：
+   $$\tilde{K}_a = \frac{\alpha_a K_a + \sum_{r \in \mathcal{R}} \alpha_r W_{a,r} K_r}{\alpha_a + \sum_{r \in \mathcal{R}} \alpha_r W_{a,r}}, \qquad \tilde{V}_a = \frac{\alpha_a V_a + \sum_{r \in \mathcal{R}} \alpha_r W_{a,r} V_r}{\alpha_a + \sum_{r \in \mathcal{R}} \alpha_r W_{a,r}}$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **LLaVA-1.6-34B** 与 **InternVL-2** 上将视觉 KV 缓存直接压缩 **50%–75%**，在 TextVQA、DocVQA 与计数基准上实现 **99.4%** 的原始性能保持率。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `vla-dtr` 及 *Sparsity for Unified Multimodal Models* (TMLR 2026) 的结合**：在合并非核心视觉 Token 时，仅合并与锚点平行的背景分量，而将正交运动边缘特征显式保留为独立锚点。
+
+---
+
+## 🔥 板块二：全球前沿热点精选 (Trending Frontier)
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-22_ai_paper_notes.md`
+
+
+---
+
+### 2.21 [2026-09-22] LoopMTP: A Looped Transformer Guided by Latent Multi-Token Prediction
+
+* **论文信息**：`arXiv:2608.03624` (2026-08)
+* **核心关键词**：Looped Transformer、Latent Multi-Token Prediction (MTP)、Progressive Horizon Supervision
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       LoopMTP: Looped Transformer Guided by Latent Multi-Token Prediction         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Input x_t ---> [Loop Step k=1: h_t^{(1)}] ---> Predict Next Token x_{t+1}        |
+|                        |                                                          |
+|                        v                                                          |
+|                 [Loop Step k=2: h_t^{(2)}] ---> Predict Future Token x_{t+1..t+2} |
+|                        |                                                          |
+|                        v                                                          |
+|                 [Loop Step k=K: h_t^{(K)}] ---> Predict Horizon x_{t+1..t+K}      |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **循环 Transformer 仅在最后一步施加监督导致的“中间循环步退化”**：如果只在第 $K$ 次循环结束时计算标准的 Next-Token Prediction (NTP) 损失，前 $K-1$ 次循环缺乏明确的中间语义目标，往往退化为微小的恒等微调。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **循环步与预测视野耦合的潜空间多 Token 预测目标**：
+   令第 $k \in \{1, \dots, K\}$ 次循环输出的隐状态 $h_t^{(k)}$ 通过轻量级特定步投影头 $P_k$ 预测未来第 $t+k$ 个位置的潜表征或词表分布：
+   $$\mathcal{L}_{\text{LoopMTP}} = \sum_{k=1}^K \lambda_k \Big( -\log P_\theta\big(x_{t+1} \mid h_t^{(k)}\big) + \mu_k \sum_{m=2}^k D_{\text{KL}}\big( \text{sg}(p_{\text{teacher}}(x_{t+m})) \,\|\, q_\theta(x_{t+m} \mid P_m h_t^{(k)}) \big) \Big)$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在代码生成与数学推理预训练中，LoopMTP 使 4 步循环 Transformer 的单步前瞻准确率提升 **`+6.2%`**，并天然支持推理期投机解码（Self-Speculative Decoding）获得 **1.9x** 加速。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `vla-loop` 定律 v18/v19（5-Step Horizon-Chord Loop Co-Design）高度一致**：在 Looped VLA 中，让每次循环迭代逐步细化更远时间步（Horizon Chunk）的动作高频分量，可显著改善末端执行轨迹的平滑度与前瞻避障能力。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-22_ai_paper_notes.md`
+
+
+---
+
+### 2.22 [2026-09-22] ROAD-VLA: Robust Online Adaptation via Self-Distillation for Vision-Language-Action Models
+
+* **论文信息**：`arXiv:2606.25800` (2026-06)
+* **核心关键词**：Online VLA Adaptation、Advantage-Guided Self-Distillation、Dense Action Supervision
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       ROAD-VLA: Robust Online Adaptation via Advantage-Guided Self-Distillation   |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Online Rollout Trajectories {\tau_i} with Sparse Binary Outcome R(\tau_i) \in {0,1}|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Action-Space Non-Parametric Teacher Construction                         |  |
+|  |    Aggregate action chunks from successful/high-advantage neighbor states   |  |
+|  |    \pi_{\text{teacher}}(a | s_t) \propto \pi_{\text{EMA}}(a | s_t) \exp(A(s_t, a)/\tau)|
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Dense Token/Chunk-Level KL Self-Distillation                             |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **稀疏二值环境奖励在大参数 VLA 在线强化学习中的高方差崩溃**：直接用 PPO/GRPO 微调数十亿参数的 VLA 模型极易因奖励稀疏（仅在数千步操作结束时给 0 或 1）而发生灾难性遗忘与视觉表征退化。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **优势加权指数倾斜教师自蒸馏（Advantage-Tilted Self-Distillation）**：
+   通过 EMA 参考策略 $\pi_{\text{ref}}$ 与轨迹优势估计 $\hat{A}(s_t, a_t)$ 构造隐式最优分布 $\pi^*(a \mid s_t) = \frac{1}{Z(s_t)} \pi_{\text{ref}}(a \mid s_t) \exp(\hat{A}(s_t, a_t)/\beta)$，将强化学习转化为稳定的稠密动作块蒸馏损失：
+   $$\mathcal{L}_{\text{ROAD}}(\theta) = \mathbb{E}_{(s_t, a_t) \sim \mathcal{B}_{\text{online}}} \Big[ \exp\big(\text{clip}(\hat{A}(s_t, a_t)/\beta, -M, M)\big) \cdot \big\| \pi_\theta(s_t) - a_t \big\|_2^2 \Big]$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在存在光照突变、桌面摩擦变化与新物体干扰的在线适应基准上，ROAD-VLA 仅需 50 条在线交互轨迹即将成功率从 `48.5%` 提升至 **`84.0%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接赋能我们 `vla-distillation` 的闭环在线微调阶段**：用优势加权 L2/流匹配自蒸馏替代高方差策略梯度，可确保紧凑型 1-NFE/3-NFE 学生模型在在线交互中零崩溃稳步提升。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/pi0.5/` (Advantage-Weighted Online Self-Distillation for Action Chunks)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-22_ai_paper_notes.md`
+
+
+---
+
+### 2.23 [2026-09-21] DeepLoop: Depth Scaling for Looped Transformers
+
+* **论文信息**：`arXiv:2607.13491` (2026-07)
+* **核心关键词**：Looped Transformers、Residual-Scaling Problem、Coherent Variance Growth、Depth Scaling Law
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|               DeepLoop: Depth Scaling for Looped Transformers                     |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Unrolled Standard Transformer (Independent Weights W_l):                         |
+|    \text{Var}(h^{(L)}) \approx \text{Var}(h^{(0)}) + \sum_{l=1}^L \sigma_l^2 = O(L)|
+|                                                                                   |
+|  Naive Looped Transformer (Shared Weight W reused K times):                       |
+|    Coherent alignment \langle f_W(h^{(k)}), f_W(h^{(j)}) \rangle > 0              |
+|    ===> \text{Var}(h^{(K)}) = O(K^2)  [Catastrophic Residual & Gradient Explosion]|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | DeepLoop Coherent-Aware Residual Scaling & Step-Conditioned Norm            |  |
+|  |    h^{(k)} = h^{(k-1)} + \frac{\alpha_k}{K^{\gamma}} f_W\big(\text{LN}_k(h^{(k-1)})\big)|
+|  |    where \gamma \in [1/2, 1] interpolates between diffusive & coherent drift|  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **循环复用的“相干方差爆炸（Coherent Variance Explosion）”**：在标准非循环 Transformer（如 DeepNorm / Pre-LN）中，由于各层权重 $W^{(l)}$ 相互独立，层间残差增量的交叉协方差近似为零，因此 $L$ 层后的隐状态方差按随机游走以 $O(L)$ 线性增长（仅需 $1/\sqrt{L}$ 缩放）。然而在 **Looped Transformer** 中，同一物理层 $f_W$ 被连续迭代调用 $K$ 次，第 $k$ 步的残差增量 $f_W(h^{(k-1)})$ 与前一步高度正相关（相干叠加），导致隐状态范数以 **$O(K^2)$ 二次方速度爆炸**，使得循环步数 $K > 4$ 时训练迅速崩溃！
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **相干循环残差方差增长定理（Coherent Residual Variance Theorem）**：
+   设循环块映射为 $h^{(k)} = h^{(k-1)} + \beta_k f_W(h^{(k-1)})$。令步间余弦相关系数为 $\rho_{j,k} = \frac{\mathbb{E}[\langle f_W(h^{(j)}), f_W(h^{(k)}) \rangle]}{\|f_W(h^{(j)})\|_2 \|f_W(h^{(k)})\|_2}$。当 $\rho_{j,k} \ge \bar{\rho} > 0$ 时，$K$ 步循环后的终端方差满足：
+   $$\mathbb{E}\big[\|h^{(K)} - h^{(0)}\|_2^2\big] = \sum_{k=1}^K \beta_k^2 \sigma_f^2 + 2 \sum_{1 \le j < k \le K} \beta_j \beta_k \rho_{j,k} \sigma_f^2 = \Theta\left( \Big(\sum_{k=1}^K \beta_k\Big)^2 \right)$$
+2. **DeepLoop 步间解耦缩放法则（Coherence-Compensated Scaling Law）**：
+   为保证无论循环深度 $K$ 如何扩展，终端隐状态流形半径始终保持 $\Theta(1)$ 李雅普诺夫有界，DeepLoop 引入经验相干指数 $\gamma(\bar{\rho}) = \frac{1}{2} + \frac{1}{2}\bar{\rho} \in [\frac{1}{2}, 1]$，设定第 $k$ 步残差门控缩放系数为：
+   $$\beta_k(K) = \frac{c_k}{K^{\gamma(\bar{\rho})}}, \qquad \text{with step-specific affine gain } \text{LN}_k(h) = \gamma_k \odot \frac{h - \mu}{\sigma} + b_k$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在循环深度从 $K=2$ 扩展至 **$K=16$** 的语言与数学推理预训练中，标准 Pre-LN 循环架构在 $K \ge 6$ 时完全发散，而 **DeepLoop** 稳定收敛并实现随循环次数 $K$ 对数线性下降的测试集 Loss，以 **1/4 的物理参数量** 追平同有效深度标准 Transformer 的推理性能。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **为我们 *Transformer-Geometry* (`arXiv:2609.15975`, EMNLP 2026) 与 `vla-loop`（定律 v18：Continuous Horizon-Phase Terminal Decay）提供精确的二阶统计力学解释！**
+  * DeepLoop 发现的“相干叠加 $\rho_{j,k} > 0$ 导致 $O(K^2)$ 范数爆炸”，从几何上看正是因为共享权重 $f_W$ 在每次循环中持续向**平行径向分量 $\Delta h_\parallel$** 注入同向推力！这再次证明了我们在 `vla-loop` 与 *Transformer-Geometry* 中剔除平行分量、仅保留正交切空间更新 $\Delta h_\perp$（使 $\rho_{j,k}^{\parallel} \to 0$，从而将方差增长压回良性的 $O(K)$）并配合终端步长衰减 $(1-\tau_k)^\beta$ 的根本必要性。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-21_ai_paper_notes.md`
+
+
+---
+
+### 2.24 [2026-09-21] RotateK: Rotation-Aligned Key Channel Pruning for Vision-Language Models
+
+* **论文信息**：`arXiv:2605.19218` (2026-05)
+* **核心关键词**：Key Channel Pruning、Orthogonal Rotation Alignment、Vision-Language Models (VLMs)、Head-Dimension Compression
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       RotateK: Rotation-Aligned Key Channel Pruning for Vision-Language Models    |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Attention Score Invariance under Orthogonal Rotation R \in O(d_k):               |
+|    Q K^\top = (Q R)(K R)^\top   where R^\top R = I_{d_k}                          |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Cross-Modal Key-Query Co-Energy SVD (跨模态查询-键联合能量奇异值对齐)    |  |
+|  |    Compute covariance C_K = \mathbb{E}[K_{\text{vis}}^\top K_{\text{vis}}]  |  |
+|  |    Eigendecompose C_K = R \Lambda R^\top ---> Fold R into W_Q, W_K offline  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Tail Channel Truncation (尾部低能量通道截断: 兼容 RoPE 2x2 块旋转)       |  |
+|  |    Retain top-r channels (r = 0.4 d_k) -> 60% Key Cache & GEMM Reduction    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **原始坐标轴下的通道能量弥散**：在多模态大模型（VLM）中，除序列长度方向（Token 维度）冗余外，注意力头内部的特征维度 $d_k$（如 $d_k=128$）在视觉特征空间中实际上具有极低的本征秩。然而，在原始训练得到的正交基下，信号能量均匀弥散在全部 128 个通道上，直接按坐标轴剪除任何通道都会造成较大的内积误差 $\|Q K^\top - \tilde{Q} \tilde{K}^\top\|_F$。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **RoPE 兼容的分块正交旋转能量集中（RoPE-Compatible Block-Orthogonal Rotation）**：
+   由于旋转位置编码（RoPE）以二维子平面 $(2i, 2i+1)$ 为单位作用：$R_\Theta(m) = \text{diag}(R_{\theta_1}^{(m)}, \dots, R_{\theta_{d_k/2}}^{(m)})$，为保持与 RoPE 的可交换性，RotateK 将 $d_k/2$ 个二维频率对按预期内积能量贡献 $\mathcal{E}_i = \mathbb{E}\big[ \| q_{[2i:2i+1]} \|_2^2 \cdot \| k_{[2i:2i+1]} \|_2^2 \big]$ 进行重排，并在每个同频子空间内执行正交主轴对齐 $U_i \in O(2)$：
+   $$\tilde{W}_Q = W_Q U_{\text{rot}}, \qquad \tilde{W}_K = W_K U_{\text{rot}}$$
+2. **误差上界最小化通道截断**：
+   保留能量最高的前 $r$ 个通道子块，此时注意力 logit 截断误差满足紧上界：
+   $$\mathbb{E}\big[ | q^\top k - \tilde{q}_{1:r}^\top \tilde{k}_{1:r} |^2 \big] \le \sum_{i = r/2 + 1}^{d_k/2} \lambda_i(C_Q) \lambda_i(C_K)$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **LLaVA-NeXT**、**Qwen2-VL-7B** 与 **InternVL-2** 上，RotateK 剪除 **50%–60% 的 Key 通道**而无需微调，且与视觉 Token 剪枝（如 FastV / VLA-Pruner）**100% 正交兼容**，联合实现 **4.2x** 注意力加速且 VQA 精度损失 `<0.5%`。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `MerA` SVD 初始化及 *Sparsity for Unified Multimodal Models* (TMLR 2026) 的正交协同**：
+  * RotateK 在特征通道维度 $d_k$ 上的正交旋转浓缩与我们在 Token 维度 $N_{\text{vis}}$ 上的剪枝构成了完整的二维矩阵联合低秩逼近（Row + Column Dual Sparsity），可直接嵌入 `vla-distillation` 的视觉前缀压缩器中。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/openvla-oft/` & `models/pi0.5/` (Dual-Level Temporal + Action Token Pruning)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-21_ai_paper_notes.md`
+
+
+---
+
+### 2.25 [2026-09-21] Self-OPD: On-Policy Distillation for Flow Matching Models without Teacher
+
+* **论文信息**：`arXiv:2608.26872` (2026-08)
+* **核心关键词**：Teacher-Free Flow Distillation、Stochastic SDE Branching、All-Branch Pull-Push Objective
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       Self-OPD: Teacher-Free On-Policy Distillation for Flow Matching             |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Student State z_t ---> Branch into K Stochastic SDE Rollouts + 1 Deterministic   |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | Self-Verifier / Reward Scorer ranks terminal states {z_1^{(1)}, ..., z_1^{(K)}}|
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | All-Branch Pull-Push Velocity Objective                                     |  |
+|  |    Pull v_\theta(z_t, t) toward high-reward branches z_1^+                  |  |
+|  |    Push v_\theta(z_t, t) away from low-reward branches z_1^-                |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **少步流匹配蒸馏对超大教师模型的依赖及教师能力上限锁死**：传统流匹配蒸馏必须先训练并常驻一个庞大的多步教师模型，且学生模型的性能永远无法超越教师。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **全分支拉推速度场目标（All-Branch Pull-Push Velocity Objective）**：
+   在中间时刻 $t$，从当前状态 $z_t$ 分叉出 $K$ 条带随机扩散项的探索分支 $\{z_1^{(k)}\}_{k=1}^K$，根据终端奖励 $r(z_1^{(k)})$ 计算归一化优势权重 $A_k$，直接构造自引导目标速度向量：
+   $$v_{\text{target}}(z_t, t) = \sum_{k=1}^K \text{Softmax}(\beta A)_k \frac{z_1^{(k)} - z_t}{1 - t} - \lambda_{\text{push}} \sum_{j: A_j < 0} |A_j| \frac{z_1^{(j)} - z_t}{1 - t}$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在不加载任何外部教师的情况下，Self-OPD 将 4 步流匹配模型的生成与控制成功率提升 **`+14.2%`**，甚至超越了 50 步原始基准模型。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **对我们 `vla-distillation` 与 `vla-loop` 的启发**：在 VLA 少步动作生成中，可利用物理仿真器的成功/碰撞反馈作为终端奖励 $r(z_1^{(k)})$，通过 Self-OPD 的全分支拉推速度场目标让 1-NFE / 3-NFE 学生策略超越 10-NFE 模仿学习教师！
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-21_ai_paper_notes.md`
+
+
+---
+
+### 2.26 [2026-09-21] MoE-FM: Towards Faster Language Model Inference Using Mixture-of-Experts Flow Matching
+
+* **论文信息**：`arXiv:2604.15009` (2026-04)
+* **核心关键词**：Mixture-of-Experts Flow Matching、Piecewise-Linear Vector Fields、Latent Flow Language Models
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|          MoE-FM: Mixture-of-Experts Flow Matching for Fast Inference              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Latent State z_t at Time t ---> Time- & State-Conditioned Router G(z_t, t)       |
+|                                        |                                          |
+|            +---------------------------+---------------------------+              |
+|            v                           v                           v              |
+|  [Expert Field v_1(z_t,t)]   [Expert Field v_2(z_t,t)]   [Expert Field v_E(z_t,t)]|
+|  (Local Straight Transport)  (Local Straight Transport)  (Local Straight Transport)|
+|            +---------------------------+---------------------------+              |
+|                                        |                                          |
+|                                        v                                          |
+|            Composite Velocity v(z_t, t) = \sum_{e \in Top-k} g_e(z_t,t) v_e(z_t,t)|
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **全局单一速度场拟合多峰分布时的轨迹弯曲（Trajectory Curvature）**：当使用单个稠密网络拟合高度多模态的语言或动作分布时，不同模式的流线在中间时刻发生交叉，迫使平均速度场严重弯曲，从而需要数十步 ODE 积分才能避免离散化截断误差。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **分片局部直线化的专家向量场分解**：
+   将全局速度场 $v(z_t, t)$ 分解为 $E$ 个局部专家速度场的稀疏组合，并加入专家内轨迹曲率惩罚以促使每个专家负责的局部区域保持直线传输：
+   $$\mathcal{L}_{\text{MoE-FM}} = \mathbb{E}_{t, z_0, z_1} \left[ \left\| \sum_{e \in \text{Top-}k} g_e(z_t, t) v_e(z_t, t) - (z_1 - z_0) \right\|_2^2 + \mu \sum_{e \in \text{Top-}k} g_e(z_t, t) \big\| \partial_t v_e(z_t, t) \big\|_2^2 \right]$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在潜空间语言生成与多模态推理中，MoE-FM 在仅使用 **2–4 步 NFE** 时即可达到单稠密流模型 16–32 步的生成质量，推理延迟降低 **3.8x**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **对我们 `vla-distillation` 多模态动作块（Action Chunk）生成的启发**：机器人操作往往存在“从左侧绕行”或“从右侧抓取”的多峰分叉模式，引入时间与状态联合门控的轻量级 LoRA 专家速度场可有效消除多峰平均导致的直线穿越障碍物问题。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-21_ai_paper_notes.md`
+
+
+---
+
+### 2.27 [2026-09-20] SHIFT-LLM: Distribution Shift Correction in Depth-Pruned LLMs
+
+* **论文信息**：`arXiv:2608.25068` (2026-08)
+* **核心关键词**：Depth Pruning、Distribution Shift Correction、Linear Residual Adapters (LRA)、Closed-Form Ridge Regression、Weight Folding
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|          SHIFT-LLM: Closed-Form Distribution Shift Correction at Cut Sites        |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Original Stack:  h^{(l-1)} ---> [Pruned Block l..l+m] ---> h_{\text{orig}}^{(l+m)}|
+|  Pruned Stack:    \tilde{h}^{(l-1)} -----(Identity Skip)---> \tilde{h}^{(l-1)}    |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Covariate Shift Diagnosis at Pruning Cut Site (剪枝切口协变量偏移诊断)   |  |
+|  |    \Delta \mu = \mathbb{E}[h_{\text{orig}}^{(l+m)} - \tilde{h}^{(l-1)}],    |  |
+|  |    Angular & norm mismatch causes downstream RMSNorm / Attention saturation |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Closed-Form Linear Residual Adapter (LRA) via Woodbury/Ridge             |  |
+|  |    \hat{h}^{(l+m)} = \tilde{h}^{(l-1)} + U_r V_r^\top \tilde{h}^{(l-1)} + b |  |
+|  |    Solved in closed form on 128 calibration sequences (Training-Free)       |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **层剪枝切口处的“流形断裂（Manifold Fracture）”**：当直接移除 Transformer 中的第 $l$ 至 $l+m$ 层时，第 $l-1$ 层的输出隐状态 $\tilde{h}^{(l-1)}$ 被直接送入原本期望接收 $h_{\text{orig}}^{(l+m)}$ 的第 $l+m+1$ 层。由于缺失了中间层的残差漂移与旋转，输入分布的一阶均值 $\mu$ 与二阶协方差矩阵 $\Sigma$ 发生剧烈跳变，导致紧随其后的注意力层 Q/K 点积失真并沿着深层指数级放大。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **剪枝切口处的最小二乘残差重构**：
+   设剪枝段输入隐状态矩阵为 $X = \tilde{H}^{(l-1)} \in \mathbb{R}^{N \times d}$，原始未剪枝模型在该切口输出的目标残差增量为 $\Delta Y = H_{\text{orig}}^{(l+m)} - \tilde{H}^{(l-1)} \in \mathbb{R}^{N \times d}$。SHIFT-LLM 在切口处插入一个低秩线性残差适配器（LRA）$W_{\text{LRA}} = U_r V_r^\top + \mathbf{1} b^\top$，通过带 Tikhonov 正则化的岭回归闭式求解全秩最优映射 $W^*$：
+   $$W^* = \arg\min_{W \in \mathbb{R}^{d \times d}} \big\| \Delta Y - (X - \bar{X}) W \big\|_F^2 + \lambda \| W \|_F^2 = \Big( \tilde{X}^\top \tilde{X} + \lambda I_d \Big)^{-1} \tilde{X}^\top \Delta \tilde{Y}$$
+2. **激活协方差加权奇异值截断（Covariance-Weighted Truncated SVD）**：
+   为保证适配器自身的计算开销可忽略（或直接折叠进下一层权重），对预测输出空間执行白化 SVD 分解：
+   $$\tilde{X} W^* = \hat{U} \hat{\Sigma} \hat{V}^\top \implies U_r = (\tilde{X}^\top \tilde{X} + \lambda I_d)^{-1/2} \hat{U}_{:, 1:r} \hat{\Sigma}_{1:r}^{1/2}, \quad V_r = \hat{V}_{:, 1:r} \hat{\Sigma}_{1:r}^{1/2}$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **Llama-3-8B/70B** 与 **Qwen-2.5-14B** 上剪除 **25%–35% 的层**后，无需任何梯度下降微调（仅需 30 秒闭式矩阵求逆），SHIFT-LLM 将 WikiText2 困惑度（PPL）从 `28.4` 恢复至 **`9.1`**，零样本常识与数学推理平均精度恢复 **`+7.9%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `modellesion-compression-scaffold`、`vla-dtr` (Ortho-MerA) 及 *Layer Dropping* (TMLR 2025) 的直接印证**：
+  * SHIFT-LLM 的闭式岭回归校正算子 $W^* = (\tilde{X}^\top \tilde{X} + \lambda I)^{-1} \tilde{X}^\top \Delta \tilde{Y}$ 与我们在 `modellesion-compression-scaffold` 中使用的 **Depth SVD-LoRA / Woodbury KKT 闭式残差补偿** 数学形式完全一致！更进一步，结合我们的 `vla-dtr`（Ortho-MerA），我们只需对正交切空间残差 $\Delta Y_\perp = \Delta Y \cdot P_\perp(X)$ 进行低秩 SVD 拟合，而将平行分量 $\Delta Y_\parallel$ 简化为标量增益 $\alpha \in \mathbb{R}$，即可用一半的秩恢复更高的几何保真度。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/pi0.5/` (Closed-Form Linear Residual Seam Adapter after DTR Layer Drop)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-20_ai_paper_notes.md`
+
+
+---
+
+### 2.28 [2026-09-20] ModularRSI: Modular and Generalizable Recursive Harness Self-Improvement
+
+* **论文信息**：`arXiv:2609.14857` (2026-09)
+* **核心关键词**：Modular Agent Harness、Compositional RSI、Interface-Constrained Evolution、Cross-Domain Generalization
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|       ModularRSI: Compositional & Interface-Constrained Harness Evolution         |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Monolithic Agent Harness H ---> Decompose into Orthogonal Typed Modules:         |
+|    [M_plan: Planner] + [M_mem: Memory] + [M_tool: ToolExec] + [M_ver: Verifier]   |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Module-Specific Credit Attribution & Targeted Mutation                   |  |
+|  |    Blame analysis localizes failure to module m^* \in \{plan, mem, tool, ver\}| |
+|  |    Mutate ONLY m^* under strict I/O schema contract \mathcal{I}_{m^*}       |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Cross-Task Pareto Archive & Compositional Recombination                  |  |
+|  |    Recombine best M_mem^* from QA tasks with best M_ver^* from Coding tasks |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **单体脚手架（Monolithic Harness）突变的耦合脆弱性**：当元智能体直接重写几千行的单体智能体代码时，对记忆模块的一次修改极易意外破坏工具解析或循环终止条件（语法/接口耦合崩溃），且在编码任务上演化出的整套脚手架无法拆解复用至科学推理任务。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **强类型接口约束下的模块化分解**：
+   将智能体脚手架表示为有向无环模块图 $H = (M_1, M_2, \dots, M_K; \mathcal{E})$，每个模块 $M_k$ 必须满足不可变的输入输出类型契约 $\mathcal{I}_k: \mathcal{X}_k \to \mathcal{Y}_k$。
+2. **反事实模块替换与帕累托重组（Counterfactual Module Crossover）**：
+   维护各模块的精英池 $\mathcal{P}_k = \{M_k^{(1)}, \dots, M_k^{(r)}\}$，通过加性代理模型估计任意模块组合的泛化效用：
+   $$\hat{U}(M_1, \dots, M_K) = \sum_{k=1}^K \alpha_k(M_k) + \sum_{(j,k) \in \mathcal{E}} \beta_{j,k}(M_j, M_k)$$
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **SWE-bench**、**GAIA** 与 **GPQA** 跨领域迁移测试中，ModularRSI 的变异编译通过率从单体 RSI 的 `54%` 提升至 **`96%`**，跨领域零样本重组性能比单体进化高出 **`+9.1%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与我们 `rsi-sandbox-architect` 的严格契约设计完全吻合**：在设计多模块 RSI（例如同时优化 VLA 的视觉 Token 剪枝模块与动作流匹配蒸馏模块）时，强制锁定模块间张量形状与接口契约是实现跨实验最优组件正交组合的关键。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-20_ai_paper_notes.md`
+
+
+---
+
+### 2.29 [2026-09-20] Flow-OPD: On-Policy Distillation for Flow Matching Models
+
+* **论文信息**：`arXiv:2605.08063` (2026-05)
+* **核心关键词**：Flow Matching、On-Policy Distillation、Velocity Field Alignment、Exposure Bias Mitigation
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|            Flow-OPD: On-Policy Distillation for Flow Matching Models              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Noise z_0 ~ N(0,I) ---> Rollout Few-Step Student Trajectory:                     |
+|                          \tilde{z}_{t_{k+1}} = \tilde{z}_{t_k} + \Delta t \cdot v_\theta(\tilde{z}_{t_k}, t_k)|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. On-Policy Teacher Velocity Query (在学生真实轨迹状态上查询教师速度场)    |  |
+|  |    Query Frozen Multi-Step Teacher v_{\text{teacher}}(\tilde{z}_{t_k}, t_k) |  |
+|  |    Corrects off-manifold drift encountered only during student rollout      |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Two-Stage Domain-Specialized Teacher Cultivation & Student Orchestration |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **离线流匹配蒸馏的“轨迹偏离暴露偏差（Off-Manifold Exposure Bias）”**：在将 50 步流匹配（Flow Matching）模型蒸馏为 1–4 步极速学生模型时，传统离线蒸馏仅在教师生成的理想直线插值轨迹 $z_t = (1-t)z_0 + t z_1$ 上监督学生。然而在实际少步推理时，学生模型第 1 步的微小离散化误差就会使其落入教师从未示范过的流形外区域（Off-Manifold State），导致后续步骤误差滚雪球式发散。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **学生在线轨迹上的速度场拉回目标（On-Policy Velocity Pull-Back）**：
+   令学生少步求解器从高斯噪声 $z_0 \sim \mathcal{N}(0, I)$ 出发自回归生成在线状态序列 $\{\tilde{z}_{t_k}\}_{k=0}^{K-1}$。在学生真实到达的状态 $\tilde{z}_{t_k}$ 处调用教师速度场 $u_\phi(\tilde{z}_{t_k}, t_k)$ 计算拉回目标：
+   $$\mathcal{L}_{\text{Flow-OPD}}(\theta) = \mathbb{E}_{z_0, k} \Big[ w(t_k) \big\| v_\theta(\text{sg}(\tilde{z}_{t_k}), t_k) - u_\phi(\text{sg}(\tilde{z}_{t_k}), t_k) \big\|_2^2 \Big]$$
+   其中 $\text{sg}(\cdot)$ 表示停止梯度算子，确保学生学会从自身产生的离散化偏移状态中主动修正回真实数据流形。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 2 步与 4 步流匹配生成基准上，Flow-OPD 将 FID 与条件指令遵循得分相比离线轨迹蒸馏（Reflow / Progressive Distillation）提升 **`18%–27%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接印证我们 `vla-distillation` 定律 G16（MerA-VelLoRA $\times$ Closed-Loop DAgger）与 G27 v3**：
+  * Flow-OPD 在ODE轨迹内部的状态级 On-Policy Velocity Pull-Back 与我们在 `vla-distillation` 中提出的闭环 DAgger 状态重采样互为“步内（Intra-Chunk）”与“步间（Inter-Chunk）”对偶！将两者结合即可同时消除少步 ODE 离散化漂移与环境交互累积误差。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-20_ai_paper_notes.md`
+
+
+---
+
+### 2.30 [2026-09-19] WRP: Forward-Free LLM Depth Pruning via Weight Redundancy
+
+* **论文信息**：`arXiv:2609.09883` (2026-09)
+* **核心关键词**：Forward-Free Depth Pruning、Weight Redundancy、Spectral Subspace Alignment、Calibration-Free Layer Dropping
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|            WRP: Forward-Free LLM Depth Pruning via Weight Redundancy              |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Frozen Pretrained Weights {W_Q^{(l)}, W_K^{(l)}, W_V^{(l)}, W_O^{(l)}, W_FFN^{(l)}}|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Effective Layer Operator Construction (无需前向激活的等效层算子构建)     |  |
+|  |    \mathcal{T}_{\text{attn}}^{(l)} = W_O^{(l)} W_V^{(l)},                   |  |
+|  |    \mathcal{T}_{\text{ffn}}^{(l)}  = W_{\text{down}}^{(l)} W_{\text{up}}^{(l)}| |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Spectral Concentration & Inter-Layer Subspace Redundancy (谱冗余度量)    |  |
+|  |    R_{\text{intra}}(l) = 1 - \frac{\exp(H(\sigma^{(l)}))}{d}                |  |
+|  |    R_{\text{inter}}(l) = \| U_{1:r}^{(l)\top} U_{\text{prev}}^{(1:l-1)} \|_F^2|
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 3. Zero-Pass One-Shot Block Pruning (<10 Seconds on CPU/Single GPU)         |  |
+|  |    Prune top-K redundant blocks with highest w_1 R_{\text{intra}} + w_2 R_{\text{inter}}|
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **校准集偏差（Calibration Set Bias）与前向显存开销**：现有的大模型深度/层剪枝方法（如 ShortGPT 的 Block Influence、LaCo、SliceGPT）均依赖在特定校准集（如 WikiText2 或 C4）上运行前向传播以统计输入输出余弦相似度。这不仅在 70B+ 模型上消耗高昂显存与时间，更严重的是层重要性打分高度受制于校准集分布——在通用语料上表现为“弱贡献”的层，往往承载着数学推理或代码生成的关键长尾子空间，剪除后导致严重的领域退化。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **无激活等效残差映射提取**：
+   对于第 $l$ 层 Transformer 块，将其对残差流 $h^{(l-1)}$ 的线性主轴作用表征为注意力值-输出合成矩阵 $M_{\text{attn}}^{(l)} = W_O^{(l)} W_V^{(l)} \in \mathbb{R}^{d \times d}$ 与前馈网络合成算子 $M_{\text{ffn}}^{(l)} = W_{\text{down}}^{(l)} (W_{\text{up}}^{(l)} \odot \bar{\sigma}_{\text{gate}}) \in \mathbb{R}^{d \times d}$。
+2. **层内有效秩赤字与层间子空间投影重叠度**：
+   对合成算子执行奇异值分解 $M^{(l)} = U^{(l)} \Sigma^{(l)} V^{(l)\top}$，定义归一化奇异值分布 $p_i^{(l)} = \frac{\sigma_i^{(l)}}{\sum_j \sigma_j^{(l)}}$。层的权重综合冗余度得分 $\mathcal{S}_{\text{WRP}}(l)$ 由**层内谱坍缩度**与**相对于前序累积子空间的投影冗余度**共同决定：
+   $$\mathcal{S}_{\text{WRP}}(l) = \underbrace{\left( 1 - \frac{\exp\big(-\sum_{i=1}^d p_i^{(l)} \log p_i^{(l)}\big)}{d} \right)}_{\text{Intra-Layer Spectral Redundancy}} + \lambda \underbrace{\frac{\big\| P_{\text{span}(1:l-1)} U_{:, 1:r}^{(l)} \big\|_F^2}{r}}_{\text{Inter-Layer Subspace Overlap}}$$
+   其中 $P_{\text{span}(1:l-1)}$ 为前 $l-1$ 层输出主奇异子空间的正交投影算子。若第 $l$ 层的输出主奇异方向几乎完全落在前序层已经张成的子空间内（即缺乏新的正交特征扩展），则该层被判定为高度冗余。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* **秒级零样本层裁剪且跨领域泛化更强**：在 **Llama-3-8B/70B**、**Qwen-2.5-14B** 与 **Mistral-7B** 上，WRP 在完全不运行任何前向传播（耗时不足 8 秒）的情况下剪除 **20%–25% 的层**，在 GSM8K 与 HumanEval 等对校准集敏感的生成任务上比 ShortGPT 和 SLEB 高出 **`+3.4%` 至 `+6.1%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **与 *Layer Dropping* (TMLR 2025)、*Demystifying When Pruning Works via Representation Hierarchies* (ICML 2026) 及 *Transformer-Geometry* (`arXiv:2609.15975`, EMNLP 2026) 的深度呼应**：
+  * WRP 的第二项 $\big\| P_{\text{span}(1:l-1)} U_{:, 1:r}^{(l)} \big\|_F^2$ 在权重空间精确刻画了我们在 *Transformer-Geometry* 中定义的**平行分量与正交分量之比**——当层权重输出子空间与前序累积子空间高度重合时，该层仅产生平行特征放大而缺乏正交旋转增量！我们可以将 WRP 的纯权重谱重叠指标与单批次激活几何探针结合，作为 `vla-dtr`（VLADrop）的快速层筛选先验。
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`profiling/` & `models/pi0.5/` (Zero-Forward Weight Spectral Redundancy DTR Layer Drop)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-19_ai_paper_notes.md`
+
+
+---
+
+### 2.31 [2026-09-19] KVzap: Fast Input-Adaptive KV Cache Compression
+
+* **论文信息**：`arXiv:2601.07891` (2026-01)
+* **核心关键词**：Input-Adaptive KV Compression、Dynamic Budget Allocation、Long-Context Inference、Zero-Overhead Gating
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|               KVzap: Fast Input-Adaptive KV Cache Compression                     |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Input Sequence X_{1:L} ---> Layer l Attention Entropy & Dispersion Probe         |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Input-Adaptive Retention Ratio Predictor (输入感知动态保留率估计)        |  |
+|  |    \rho_{l,h}(X) = \text{Clamp}\big( \frac{\exp(H(A_{l,h}))}{L}, \rho_{\min}, \rho_{\max} \big)|
+|  |    Spiky attention -> Aggressive zap; Uniform retrieval -> High retention   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Local + Heavy-Hitter Zap Kernel (硬件友好块级快速裁剪)                   |  |
+|  |    Keep top-\lceil \rho_{l,h}(X) L \rceil keys/values + sliding sink window |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **静态固定压缩率（Fixed Compression Ratio）对输入复杂度差异的盲目性**：现有 KV 压缩方法往往对所有输入样本、所有层与注意力头强制设定固定的预算比例（例如固定保留 20%）。然而，简单摘要任务的注意力高度集中在少数锚点 Token 上（可安全压缩 85%），而密集多跳检索或代码调试任务的注意力分布高度弥散，固定高压缩率会导致关键上下文丢失。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **基于归一化注意力谱熵的输入自适应预算（Spectral-Entropy Adaptive Budget）**：
+   对于第 $l$ 层第 $h$ 个注意力头在观察窗口 $W$ 上的平均注意力分布 $\bar{a}_{l,h} \in \Delta^{L-1}$，计算其香农熵 $H(\bar{a}_{l,h}) = -\sum_{j=1}^L \bar{a}_{l,h,j} \log \bar{a}_{l,h,j}$。定义该头的有效支撑集比例（Effective Support Ratio）作为动态保留率 $\rho_{l,h}(X)$：
+   $$\rho_{l,h}(X) = \text{clip}\left( \gamma \cdot \frac{\exp\big( H(\bar{a}_{l,h}) \big)}{L}, \; \rho_{\min}, \; \rho_{\max} \right)$$
+   当注意力高度尖锐时，$\exp(H(\bar{a}_{l,h})) \ll L$，KVzap 自动触发激进裁剪；当输入需要广泛上下文聚合时，$\exp(H(\bar{a}_{l,h}))$ 增大，自动扩容该头的保留槽位。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在 **LongBench**、**InfiniteBench** 与 **Needle-in-a-Haystack** 上，KVzap 实现了平均 **2.8x–4.1x** 的端到端 KV 显存压缩与 **2.3x** 解码吞吐提升，同时在密集检索任务上比固定预算 SnapKV 高出 **`+4.7%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接赋能我们 `Efficient Ads / HisTrim` 与 `rsi-diagnosis-mutator` 的序列有效样本量（ESS）自适应门控**：
+  * 注意 $\exp(H(\bar{a}))$ 与我们在 `rsi-diagnosis-mutator` 中用于诊断长序列注意力坍缩的 **Sequence Effective Sample Size ($\text{ESS} = 1 / \sum_j a_j^2$)** 在数学上同属 Rényi 熵族（$\alpha=1$ vs. $\alpha=2$）！我们可以在 `HisTrim` 和 `vla-dtr` 中直接用计算更快的二阶 Rényi 有效样本量 $\text{ESS}_{l,h} / L$ 动态调节每层视觉/用户历史 Token 的保留比例。
+
+---
+
+## 🔥 板块二：全球前沿热点精选 (Trending Frontier)
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-19_ai_paper_notes.md`
+
+
+---
+
+### 2.32 [2026-09-19] Motus2: Self-Evolving General World Models for Dexterous Manipulation
+
+* **论文信息**：`arXiv:2608.30237` (2026-08)
+* **核心关键词**：Embodied World Models、Dexterous Manipulation、Contact-Rich Dynamics、Self-Evolving Policy-Model Co-Loop
+
+#### 📐 架构与核心算法流程图 (ASCII Blueprint)
+
+```text
++-----------------------------------------------------------------------------------+
+|        Motus2: Self-Evolving General World Model for Dexterous Manipulation       |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  Multi-View RGB-D + Proprioception + Tactile/Force State z_t + Dexterous Action a_t|
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. Contact-Aware Latent Flow World Model (接触感知潜空间流匹配世界模型)     |  |
+|  |    Predicts next latent state \hat{z}_{t+1} & contact force map \hat{c}_{t+1}| |
+|  +-----------------------------------------------------------------------------+  |
+|                                        |                                          |
+|                                        v                                          |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Discrepancy-Driven Active Exploration (预测误差驱动的边界状态主动收集)   |  |
+|  |    High ||z_{t+1} - \hat{z}_{t+1}||_2 at slip/contact transitions triggers  |  |
+|  |    targeted real/sim rollout -> Iteratively co-evolves World Model & VLA    |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+#### 🎯 背景与痛点 (Background & Pain Points)
+* **高自由度灵巧操作中的接触非连续性（Contact Discontinuity）**：在 20+ 自由度多指灵巧手操作中，手指与物体的刚性接触建立与滑动脱离属于非光滑力学跳变，静态离线训练的视频世界模型在接触瞬间常出现物体穿透或悬空幻觉。
+
+#### 💡 核心方法与数学公式 (Core Methodology & Math)
+1. **接触力解耦的条件流匹配动力学（Contact-Conditioned Latent Flow Matching）**：
+   在潜空间中联合建模状态流场 $v_\theta(z_\tau, \tau \mid z_t, a_t, \hat{c}_t)$ 与显式接触掩码预测器 $\hat{c}_t \in [0, 1]^{N_{\text{finger}}}$：
+   $$\mathcal{L}_{\text{Motus2}} = \mathbb{E}_{\tau \sim \mathcal{U}(0,1)} \Big[ \big\| v_\theta(z_\tau, \tau \mid z_t, a_t, \hat{c}_t) - (z_{t+1} - z_t) \big\|_2^2 \Big] + \lambda_c \text{BCE}(\hat{c}_t, c_t^{\text{gt}})$$
+2. **基于世界模型残差的自演化数据闭环**：
+   在线收集世界模型预测误差 $\|z_{t+1} - \hat{z}_{t+1}\|_2$ 最大的前 $p\%$ 接触边界转换帧，加权回灌至世界模型与 VLA 策略的联合微调池。
+
+#### 📊 关键实验与结论 (Key Experiments & Takeaways)
+* 在涵盖转笔、拧瓶盖、双臂精细插拔等 12 项高难度灵巧手基准上，经过 3 轮自演化后，Motus2 将接触状态预测误差降低 **44%**，下游灵巧操作成功率从 `54.0%` 跃升至 **`79.5%`**。
+
+#### 🔗 与我们工作（Our Works）的直接关联与落地启发
+* **直接呼应我们 `vla-distillation` (G27 v3) 与 `vla-dtr` (G21-G23) 的 `Bi-Modal Online Data-RSI Curriculum`**：Motus2 用世界模型残差 $\|z_{t+1} - \hat{z}_{t+1}\|_2$ 定位高曲率接触边界的做法，与我们在 `vla-dtr` 中利用速度场二阶曲率筛选困难状态进行重采样的思想完全相通！
+
+---
+
+> [!TIP]
+> **🎯 `VLADrop` 仓库代码级落地点 (`Target Module`)**：`models/` & `profiling/` (`VLADrop`)  
+> **📚 上游精读归档 (`Upstream Source`)**：`scholar-odyssey/intelligence/papers/2026-09-19_ai_paper_notes.md`
+
+
+---
