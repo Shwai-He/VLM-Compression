@@ -13,7 +13,7 @@
 
 | 收录日期 | 论文标题与 arXiv 链接 | 关键实测收益 / 核心结论 | 锚定本仓库代码模块与文档路径 (`Target Module`) | 原始精读归档 |
 | :---: | :--- | :--- | :--- | :---: |
-| `2026-09-30` | [**ACPruner & SCOPD**](https://arxiv.org/abs/2609.34558) (`arXiv:2609.34558`) | **极低保留率下的性能飞跃**：在 `LLaVA-NeXT-7B` 与 `Qwen2.5-VL-7B` 上，当视觉 Token 剪掉 **88.9%**（仅保留 `64/576` 个 Token）时，单独使用... | `models/openvla-oft/` & `models/pi0.5/` (Biased Attention Coverage Maximization Visual Token Pruning) | [2026-09-30](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-30_ai_paper_notes.md) |
+| `2026-09-30` | [**ACPruner & SCOPD**](https://arxiv.org/abs/2609.34558) (`arXiv:2609.34558`) | `ACPruner` (`2609.34558`) 保留 64/576 视觉 Token 维持 97.4% 精度；`SCOPD` (`2609.34044`) 10% 视觉 Token 保留率下 13 基准保留率：Vanilla 86.37%、SCOPD 90.49%、SCOPD+ 92.43% | `models/openvla-oft/` & `models/pi0.5/` (Biased Attention Coverage Maximization Visual Token Pruning) | [2026-09-30](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-30_ai_paper_notes.md) |
 | `2026-09-30` | [**CAT-Flow & MSFM**](https://arxiv.org/abs/2609.01746) (`arXiv:2609.01746`) | **`CAT-Flow` 免训练少步生成大幅提速**：在 Flux、Stable Diffusion 3、ImageNet SiT 以及机器人流匹配控制策略上，完全免训练的 `CAT-Flow` 在 **4–8 NFE** 低步数... | `models/pi0.5/` (Curvature-Adaptive Step Allocation for Flow-Matching Action Expert) | [2026-09-30](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-30_ai_paper_notes.md) |
 | `2026-09-30` | [**VLaRL & Programmable World Model**](https://arxiv.org/abs/2609.30868) (`arXiv:2609.30868`) | **`VLaRL` 真机零样本迁移大幅攻克精密操作**：在包含 USB 插入、齿轮啮合、紧密卡扣装配等高难度接触任务上，冻结的基座 VLA 成功率仅为 **28.0%**，直接基于像素的 Sim-to-Real RL 因外观差异仅... | `models/pi0.5/` & `models/openvla-oft/` (Latent-Conditioned Sim-to-Real Residual RL for Frozen VLAs) | [2026-09-30](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-30_ai_paper_notes.md) |
 | `2026-09-29` | [**✂️ CoverPruner & SFPruner**](https://arxiv.org/abs/2609.03158) (`arXiv:2609.03158`) | 在 LLaVA-NeXT、Qwen2.5-VL 与 InternVL-2.5 等高分辨率多模态模型上，当剪除 **80%–88.9% 视觉 Token**（仅保留 64–128 个 Token）时，`CoverPruner` 与... | `models/openvla-oft/` & `models/pi0.5/` (k-Medoids Coverage Visual Token Pruning + Surrogate Value Folding) | [2026-09-29](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/papers/2026-09-29_ai_paper_notes.md) |
@@ -59,12 +59,38 @@
 
 ---
 
-## 📐 2. 逐篇论文深度机制解构、数学公式与本仓库落地指南 (Per-Paper Deep-Dive Cards)
+## 🔎 2. 来源核验、推导边界与复现补充规范 (Source Verification & Reproducibility Notes)
 
-### 2.1 [2026-09-30] ACPruner & SCOPD: Visual Token Pruning as Biased Attention Coverage Maximization & Sparse-Context On-Policy Self-Distillation (`arXiv:2609.34558` & `arXiv:2609.33918`)
+### 🔎 来源核验与研究补充（2026-09-30）
+
+本日实际为 6 个主题组、12 篇论文。本次核对标题与编号，不代表已核对全部公式、实验表或完成复现。
+
+**引用纠正**：SCOPD 的正确编号为 [2609.34044](https://arxiv.org/abs/2609.34044)。原笔记中的 `2609.33918` 实际对应 *Green AI: Cost of LLM-Based Code Completion*，后文涉及 SCOPD 的该编号均以此更正为准。
+
+**指标纠正**：SCOPD 摘要在 10% 视觉 Token 保留率、13 个基准下报告相对未剪枝模型的性能保留率：Vanilla 86.37%、SCOPD 90.49%、SCOPD+ 92.43%。后文“99.5% 恢复率”、5,000 条训练指令、1 Epoch、68% 延迟降低及 79% 缓存压缩未获本次核验支持，撤回这些具体数值。ACPruner 与 SCOPD 的组合应视为研究建议，不能当作论文已报告的联合实验。
+
+| 主题组 | 原始论文来源 |
+| :--- | :--- |
+| 视觉剪枝与蒸馏 | [ACPruner](https://arxiv.org/abs/2609.34558)、[SCOPD](https://arxiv.org/abs/2609.34044) |
+| MoE 服务 | [SlimWise](https://arxiv.org/abs/2609.34117)、[CascadeEP](https://arxiv.org/abs/2609.33252) |
+| 静态图与动态剪枝 | [Dynamic Flow, Static Graph](https://arxiv.org/abs/2609.34727)、[DORA](https://arxiv.org/abs/2609.34325) |
+| 流匹配 | [CAT-Flow](https://arxiv.org/abs/2609.01746)、[MSFM](https://arxiv.org/abs/2609.35454) |
+| 具身与世界模型 | [VLaRL](https://arxiv.org/abs/2609.30868)、[Programmable World Model](https://arxiv.org/abs/2609.10540) |
+| 自我改进智能体 | [AutoDataBench](https://arxiv.org/abs/2609.35025)、[SelfOp](https://arxiv.org/abs/2609.22792) |
+
+**推导与实现边界**：后文 KL 公式的方向为教师到学生，不应称为学生到教师的反向 KL；隐状态对齐等组合设计仍需全文逐式核验。次模近似保证需核对非负、单调、归一化与基数约束；流形收缩结论需明确成立区域与扰动假设。跨仓映射表仅为候选适配位置，本次没有检查其他仓库路径或执行跨仓写入。
+
+**建议复现顺序**：先分别复现 ACPruner、SCOPD，再测组合；随后验证 MoE 在长短混合请求下的质量与吞吐，最后测试固定 NFE 下的流匹配误差。记录论文版本、代码 commit、模型与数据版本、随机种子、硬件及预算；同时报告分任务性能、端到端延迟和峰值显存。智能体技能更新应使用独立保留任务，防止验证集泄漏。详细实验建议见[同日新闻](https://github.com/Shwai-He/scholar-odyssey/blob/main/intelligence/news/2026-09-30_daily_news.md)。
+
+
+---
+
+## 📐 3. 逐篇论文深度机制解构、数学公式与本仓库落地指南 (Per-Paper Deep-Dive Cards)
+
+### 3.1 [2026-09-30] ACPruner & SCOPD: Visual Token Pruning as Biased Attention Coverage Maximization & Sparse-Context On-Policy Self-Distillation (`arXiv:2609.34558` & `arXiv:2609.34044`)
 * **论文标题**：
   1. *ACPruner: Visual Token Pruning as Biased Attention Coverage Maximization in LVLMs* (`arXiv:2609.34558`)
-  2. *SCOPD: Sparse-Context On-Policy Self-Distillation for Efficient Vision-Language Models* (`arXiv:2609.33918`)
+  2. *SCOPD: Sparse-Context On-Policy Self-Distillation for Efficient Vision-Language Models* (`arXiv:2609.34044`)
 * **核心关键词**：`token pruning`, `visual token pruning`, `acpruner`, `scopd`, `coverage maximization`, `on-policy self-distillation`, `vlm`, `multimodal`
 
 #### 📌 核心痛点与研究动机 (Motivation & Pain Points)
@@ -92,7 +118,7 @@ $$
 #### 🎨 算法架构图与实现伪代码 (Architecture & Pseudocode)
 ```
 ====================================================================================================
-     ACPruner (偏置注意力覆盖选点) + SCOPD (稀疏上下文在线自蒸馏) 协同流水线 (arXiv:2609.34558 & 33918)
+     ACPruner (偏置注意力覆盖选点) + SCOPD (稀疏上下文在线自蒸馏) 协同流水线 (arXiv:2609.34558 & 34044)
 ====================================================================================================
 
   [Full Visual Tokens V (N=576)] + [Text Query Q]
@@ -112,7 +138,6 @@ $$
 
 #### 📊 实验指标与核心结论 (Experimental Results & Key Takeaways)
 * **极低保留率下的性能飞跃**：在 `LLaVA-NeXT-7B` 与 `Qwen2.5-VL-7B` 上，当视觉 Token 剪掉 **88.9%**（仅保留 `64/576` 个 Token）时，单独使用 `ACPruner` 即可在 10 个多模态基准上保留 **97.4%** 的原始精度（超越 `FastV`、`SparseVLM` 与无偏 `CoverPruner` 达 **+1.8–4.6 pp**）。
-* **零标注在线自蒸馏恢复率突破 99%**：在此基础上仅用 5,000 条无标签图文指令执行 `SCOPD` 在线自蒸馏 1 个 Epoch，模型在 88.9% 剪枝率下的综合精度恢复率跃升至 **99.5%**，Prefill 延迟降低 **68%**，KV Cache 显存占用压缩 **79%**。
 
 #### 💡 与我们研究方向的闭环关联 (Connection to Our Research)
 * **赋能 `SparseUnifiedModel`、`VLADrop` 与 `Axon V2` (`Pillar 1: RL-HiSTrim`)**：我们在 `VLADrop` 和 `Axon V2` 中对多视角相机图像做 Token 剪枝时，常观察到当保留率压至 ≤ 20% 时动作专家在精细抓取阶段会出现几厘米的定位偏差（正是 `SCOPD` 揭示的“表征-利用鸿沟”）。将 `ACPruner` 的跨模态偏置次模核与 `SCOPD` 的在线稀疏上下文自蒸馏引入 `axon/models/vla_pruner.py` 与 `sparse_umm/token_pruning.py`，可在不改动推理架构的前提下彻底抚平高倍率视觉剪枝带来的特征断层。
@@ -126,7 +151,7 @@ $$
 
 ---
 
-### 2.2 [2026-09-30] CAT-Flow & MSFM: Curvature-Adaptive Steps & Manifold-Stable Contraction Theory for Flow Matching (`arXiv:2609.01746` & `arXiv:2609.35454`)
+### 3.2 [2026-09-30] CAT-Flow & MSFM: Curvature-Adaptive Steps & Manifold-Stable Contraction Theory for Flow Matching (`arXiv:2609.01746` & `arXiv:2609.35454`)
 * **论文标题**：
   1. *CAT-Flow: Curvature-Adaptive sTeps for Flow Matching* (`arXiv:2609.01746`)
   2. *Manifold-Stable Flow Matching* (`arXiv:2609.35454`)
@@ -189,7 +214,7 @@ $$
 
 ---
 
-### 2.3 [2026-09-30] VLaRL & Programmable World Model: Latent-Conditioned Sim-to-Real Residual RL for Frozen VLAs & Executable World State Evolution (`arXiv:2609.30868` & `arXiv:2609.10540`)
+### 3.3 [2026-09-30] VLaRL & Programmable World Model: Latent-Conditioned Sim-to-Real Residual RL for Frozen VLAs & Executable World State Evolution (`arXiv:2609.30868` & `arXiv:2609.10540`)
 * **论文标题**：
   1. *VLaRL: Augmenting Vision-Language-Action Models with Simulation-Trained Latent-Conditioned Residual RL* (`arXiv:2609.30868`)
   2. *Programmable World Model* (`arXiv:2609.10540`)
@@ -258,7 +283,7 @@ $$
 
 ---
 
-### 2.4 [2026-09-29] ✂️ *CoverPruner & SFPruner: Who Speaks for the Pruned? Visual Token Pruning as Coverage Optimization & Single-Forward Ridge Leverage*
+### 3.4 [2026-09-29] ✂️ *CoverPruner & SFPruner: Who Speaks for the Pruned? Visual Token Pruning as Coverage Optimization & Single-Forward Ridge Leverage*
 > 🏷️ **核心关键词**：Visual Token Pruning · Representational Coverage Maximization (RCM) · Ridge Leverage Score · High-Resolution MLLMs  
 > 🔗 **arXiv 链接**：[`arXiv:2609.03158`](https://arxiv.org/abs/2609.03158) (`CoverPruner`) & [`arXiv:2607.23046`](https://arxiv.org/abs/2607.23046) (`SFPruner`)
 
@@ -302,7 +327,7 @@ $$
 
 ---
 
-### 2.5 [2026-09-29] 🦾 *DEE-VLA: Decoupled Early Exits for Task-Dependent Compute Allocation in Flow-Matching VLAs*
+### 3.5 [2026-09-29] 🦾 *DEE-VLA: Decoupled Early Exits for Task-Dependent Compute Allocation in Flow-Matching VLAs*
 > 🏷️ **核心关键词**：Vision-Language-Action (VLA) · Flow Matching · Decoupled Early Exits · Dynamic Compute Allocation  
 > 🔗 **arXiv 链接**：[`arXiv:2609.29382`](https://arxiv.org/abs/2609.29382)
 
@@ -346,7 +371,7 @@ $$
 
 ---
 
-### 2.6 [2026-09-29] 🌍 *WM2VLA & InternW0-Δ: Think Like a World Model, Act Like a VLA — Distilling World-Model Representations & Causal Imprint into Compact Robot Policies*
+### 3.6 [2026-09-29] 🌍 *WM2VLA & InternW0-Δ: Think Like a World Model, Act Like a VLA — Distilling World-Model Representations & Causal Imprint into Compact Robot Policies*
 > 🏷️ **核心关键词**：World Action Model (WAM) · World-Model Representation Distillation · Causal Imprint · Rollout-Free Real-Time Control  
 > 🔗 **arXiv 链接**：[`arXiv:2609.24682`](https://arxiv.org/abs/2609.24682) (`WM2VLA`) & [`arXiv:2609.31394`](https://arxiv.org/abs/2609.31394) (`InternW0-Δ`)
 
@@ -390,7 +415,7 @@ $$
 
 ---
 
-### 2.7 [2026-09-29] 🧬 *Failure-RSI & Flow3D-OPD: Inference-Time Failure-Driven Agent Patching & Multi-Teacher On-Policy Flow Distillation*
+### 3.7 [2026-09-29] 🧬 *Failure-RSI & Flow3D-OPD: Inference-Time Failure-Driven Agent Patching & Multi-Teacher On-Policy Flow Distillation*
 > 🏷️ **核心关键词**：Inference-Time Self-Improvement · Failure-Driven Code Patching · Multi-Teacher On-Policy Distillation (OPD) · Flow-Matching DiT  
 > 🔗 **arXiv 链接**：[`arXiv:2606.31270`](https://arxiv.org/abs/2606.31270) (`Failure-RSI`, ECCV 2026) & [`arXiv:2609.07137`](https://arxiv.org/abs/2609.07137) (`Flow3D-OPD`)
 
@@ -437,7 +462,7 @@ $$
 
 ---
 
-### 2.8 [2026-09-28] ✂️ *CLSE: Spectral Evolution-Guided Token Pruning in Multimodal Large Language Models*
+### 3.8 [2026-09-28] ✂️ *CLSE: Spectral Evolution-Guided Token Pruning in Multimodal Large Language Models*
 > 🏷️ **核心关键词**：Multimodal Token Pruning · Cross-Layer Spectral Evolution · Discrete Cosine Transform (DCT) · Training-Free Compression  
 > 🔗 **arXiv 链接**：[`arXiv:2606.24165`](https://arxiv.org/abs/2606.24165) (ECCV 2026)
 
@@ -484,7 +509,7 @@ $$
 
 ---
 
-### 2.9 [2026-09-28] ✂️ *ASL: Adaptive Layer Selection for Layer-Wise Token Pruning in LLM Inference*
+### 3.9 [2026-09-28] ✂️ *ASL: Adaptive Layer Selection for Layer-Wise Token Pruning in LLM Inference*
 > 🏷️ **核心关键词**：Layer-Wise Token Pruning · Adaptive Layer Selection · Attention Variance · Long-Context LLM Inference  
 > 🔗 **arXiv 链接**：[`arXiv:2601.07667`](https://arxiv.org/abs/2601.07667) (ACL 2026 Findings)
 
@@ -530,7 +555,7 @@ $$
 
 ---
 
-### 2.10 [2026-09-28] 🦾 *IMLE-VLA: Fast Single-Step Action Generation for Vision-Language-Action Policies*
+### 3.10 [2026-09-28] 🦾 *IMLE-VLA: Fast Single-Step Action Generation for Vision-Language-Action Policies*
 > 🏷️ **核心关键词**：Vision-Language-Action (VLA) · Implicit Maximum Likelihood Estimation (cIMLE) · Single-Step 1-NFE Generation · Robotic Control  
 > 🔗 **arXiv 链接**：[`arXiv:2609.04369`](https://arxiv.org/abs/2609.04369)
 
@@ -571,7 +596,7 @@ $$
 
 ---
 
-### 2.11 [2026-09-28] 🌍 *WorldAgen: Unified State-Action Prediction with Test-Time World Model Training*
+### 3.11 [2026-09-28] 🌍 *WorldAgen: Unified State-Action Prediction with Test-Time World Model Training*
 > 🏷️ **核心关键词**：Embodied World Models · Unified State-Action Prediction · Test-Time Training (TTT) · Online Sim-to-Real Adaptation  
 > 🔗 **arXiv 链接**：[`arXiv:2609.08162`](https://arxiv.org/abs/2609.08162)
 
@@ -615,7 +640,7 @@ $$
 
 ---
 
-### 2.12 [2026-09-27] OBCache: Optimal Brain KV Cache Pruning for Efficient Long-Context LLM Inference
+### 3.12 [2026-09-27] OBCache: Optimal Brain KV Cache Pruning for Efficient Long-Context LLM Inference
 
 * **论文信息**：Yuzhe Gu, Xiyu Liang, Jiaojiao Zhao, Enmao Diao (`arXiv:2510.07651`, **ICML 2026**)
 * **核心关键词**：KV Cache Eviction、Optimal Brain Damage (OBD)、Second-Order Taylor Perturbation、Output-Aware Saliency、Joint KV Pruning
@@ -710,7 +735,7 @@ $$
 
 ---
 
-### 2.13 [2026-09-27] RRSI: Regularized Recursive Self-Improvement of Agent Harnesses
+### 3.13 [2026-09-27] RRSI: Regularized Recursive Self-Improvement of Agent Harnesses
 
 * **论文信息**：Peng Xia, Rujun Han, Zifeng Wang, Yanfei Chen et al. (`arXiv:2609.24972`, 2026-09, Google Cloud AI Research & UNC)
 * **核心关键词**：Regularized RSI、Agent Harness Overfitting、Temporally Annealed Proposal Budget、Critic-Pruner Selection
@@ -787,7 +812,7 @@ $$
 
 ---
 
-### 2.14 [2026-09-27] Code as Worlds: Agentic Discovery of Executable World Representations for Physical Reasoning
+### 3.14 [2026-09-27] Code as Worlds: Agentic Discovery of Executable World Representations for Physical Reasoning
 
 * **论文信息**：Hanyang Wang, Yimo Cai, Weiliang Chen et al. (`arXiv:2608.27549`, 2026-08, 清华大学 & 智源研究院 BAAI)
 * **核心关键词**：Code as Worlds、Executable World Models、Abductive Physical Reasoning、Render-and-Compare Loop、VLM Physical Supervision
@@ -860,7 +885,7 @@ $$
 
 ---
 
-### 2.15 [2026-09-26] 🔄 *LoopMoE: Unifying Iterative Computation with Mixture-of-Experts for Language Modeling*
+### 3.15 [2026-09-26] 🔄 *LoopMoE: Unifying Iterative Computation with Mixture-of-Experts for Language Modeling*
 > **聚焦领域**：Looped Transformers · Mixture of Experts (MoE) · Iterative Depth Scaling · Weight Sharing  
 > **arXiv**：[`arXiv:2606.04438`](https://arxiv.org/abs/2606.04438)
 
@@ -913,7 +938,7 @@ $$
 
 ---
 
-### 2.16 [2026-09-26] ⚖️ *SelKV: Selective KV Cache Merging with Per-Token Merge-or-Drop and Attention Compensation*
+### 3.16 [2026-09-26] ⚖️ *SelKV: Selective KV Cache Merging with Per-Token Merge-or-Drop and Attention Compensation*
 > **聚焦领域**：KV Cache Compression · Softmax Denominator Compensation · Token Merging vs. Dropping  
 > **arXiv**：[`arXiv:2607.16213`](https://arxiv.org/abs/2607.16213)
 
@@ -968,7 +993,7 @@ $$
 
 ---
 
-### 2.17 [2026-09-26] 🤖 *VLA-Pruner: Temporal-Aware Dual-Level Visual Token Pruning for Efficient Vision-Language-Action Inference*
+### 3.17 [2026-09-26] 🤖 *VLA-Pruner: Temporal-Aware Dual-Level Visual Token Pruning for Efficient Vision-Language-Action Inference*
 > **聚焦领域**：Vision-Language-Action (VLA) · Embodied AI · Visual Token Pruning · Temporal Consistency  
 > **arXiv**：[`arXiv:2511.16449`](https://arxiv.org/abs/2511.16449)
 
@@ -1024,7 +1049,7 @@ $$
 
 ---
 
-### 2.18 [2026-09-25] Fully Looped Transformer: Stabilizing Looped Models via Attention Injection and Residual Scaling
+### 3.18 [2026-09-25] Fully Looped Transformer: Stabilizing Looped Models via Attention Injection and Residual Scaling
 
 * **论文信息**：`arXiv:2605.18797` (2026-05)
 * **核心关键词**：Fully Looped Transformer、Attention Injection、Anchor KV Grounding、Gradient Oscillation Prevention
@@ -1090,7 +1115,7 @@ $$
 
 ---
 
-### 2.19 [2026-09-25] On the Limits of Layer Pruning in Generative Reasoning LLMs
+### 3.19 [2026-09-25] On the Limits of Layer Pruning in Generative Reasoning LLMs
 
 * **论文信息**：`arXiv:2602.01997` (2026-02)
 * **核心关键词**：Limits of Layer Pruning、Sequential Circuit Depth、Multi-Step Arithmetic & Logic Degradation
@@ -1143,7 +1168,7 @@ $$
 
 ---
 
-### 2.20 [2026-09-25] Test-Time Scaling in Reasoning LLMs: Inference Regimes and Compute-Optimal Verification
+### 3.20 [2026-09-25] Test-Time Scaling in Reasoning LLMs: Inference Regimes and Compute-Optimal Verification
 
 * **论文信息**：`arXiv:2608.02145` (2026-08)
 * **核心关键词**：Test-Time Scaling Regimes、Best-of-N vs. Sequential Revision vs. Tree Search、Compute-Optimal Frontier
@@ -1190,7 +1215,7 @@ $$
 
 ---
 
-### 2.21 [2026-09-24] Training-Free Looped Transformers: Test-Time Mid-Stack Layer Looping
+### 3.21 [2026-09-24] Training-Free Looped Transformers: Test-Time Mid-Stack Layer Looping
 
 * **论文信息**：`arXiv:2605.23872` (2026-05)
 * **核心关键词**：Training-Free Looped Transformer、Test-Time Depth Scaling、Mid-Stack Fixed-Point Iteration
@@ -1244,7 +1269,7 @@ $$
 
 ---
 
-### 2.22 [2026-09-24] MixKV: Balancing Importance and Diversity for Modality-Specific KV Cache Compression
+### 3.22 [2026-09-24] MixKV: Balancing Importance and Diversity for Modality-Specific KV Cache Compression
 
 * **论文信息**：`arXiv:2510.20707` (2025/2026)
 * **核心关键词**：Importance-Diversity Trade-off、Modality-Specific KV Compression、Cosine Repulsion Selection
@@ -1300,7 +1325,7 @@ $$
 
 ---
 
-### 2.23 [2026-09-24] AEWM: Agent-Editing World Model with Inference-Time Action Judge and State Revision
+### 3.23 [2026-09-24] AEWM: Agent-Editing World Model with Inference-Time Action Judge and State Revision
 
 * **论文信息**：`arXiv:2609.28416` (2026-09)
 * **核心关键词**：Agent-Editing World Model、Inference-Time State Revision、Action Judge、Latent Trajectory Correction
@@ -1358,7 +1383,7 @@ $$
 
 ---
 
-### 2.24 [2026-09-24] DriveMoE: Mixture-of-Experts for Vision-Language-Action Model in End-to-End Autonomous Driving
+### 3.24 [2026-09-24] DriveMoE: Mixture-of-Experts for Vision-Language-Action Model in End-to-End Autonomous Driving
 
 * **论文信息**：`arXiv:2505.16278` (2025/2026)
 * **核心关键词**：End-to-End Autonomous Driving、Scene-Specialized Vision MoE、Skill-Specialized Action MoE、Flow-Matching Planner
@@ -1406,7 +1431,7 @@ $$
 
 ---
 
-### 2.25 [2026-09-24] Decision Representation Transitions in Pruning: Silent vs. Decisive Phases
+### 3.25 [2026-09-24] Decision Representation Transitions in Pruning: Silent vs. Decisive Phases
 
 * **论文信息**：`arXiv:2605.07271` (2026-05)
 * **核心关键词**：Decision Representation Phase Transition、Silent vs. Decisive Layers、Linear Probe Separability、Pruning Collapse Boundary
@@ -1457,7 +1482,7 @@ $$
 
 ---
 
-### 2.26 [2026-09-23] HetDPT: Rethinking Depth Pruning for Vision Transformers — A Heterogeneity-Aware Perspective
+### 3.26 [2026-09-23] HetDPT: Rethinking Depth Pruning for Vision Transformers — A Heterogeneity-Aware Perspective
 
 * **论文信息**：`arXiv:2607.03784` (2026-07)
 * **核心关键词**：Heterogeneity-Aware Depth Pruning、Decoupled MHSA/FFN Pruning、Vision Transformers
@@ -1523,7 +1548,7 @@ $$
 
 ---
 
-### 2.27 [2026-09-23] RT-VLA: Real-Time Vision-Language-Action Models via Knowledge Distillation
+### 3.27 [2026-09-23] RT-VLA: Real-Time Vision-Language-Action Models via Knowledge Distillation
 
 * **论文信息**：`arXiv:2606.14010` (2026-06)
 * **核心关键词**：Real-Time VLA、Cross-Architecture Knowledge Distillation、Visual-Action Feature Alignment
@@ -1575,7 +1600,7 @@ $$
 
 ---
 
-### 2.28 [2026-09-23] MELT: Memory-Efficient Looped Transformer — Decoupling Compute from Memory
+### 3.28 [2026-09-23] MELT: Memory-Efficient Looped Transformer — Decoupling Compute from Memory
 
 * **论文信息**：`arXiv:2605.07721` (2026-05)
 * **核心关键词**：Memory-Efficient Looped Transformer、Shared Cross-Loop KV Cache、Compute-Memory Decoupling
@@ -1626,7 +1651,7 @@ $$
 
 ---
 
-### 2.29 [2026-09-23] HiMoE-VLA: Hierarchical Mixture-of-Experts for Generalist Vision-Language-Action Policies
+### 3.29 [2026-09-23] HiMoE-VLA: Hierarchical Mixture-of-Experts for Generalist Vision-Language-Action Policies
 
 * **论文信息**：`arXiv:2512.05693` (2025/2026)
 * **核心关键词**：Hierarchical MoE、Generalist VLA Policy、Task-Skill Decoupled Routing、Gradient Conflict Mitigation
@@ -1674,7 +1699,7 @@ $$
 
 ---
 
-### 2.30 [2026-09-22] SnapFlow: One-Step Action Generation for Flow-Matching VLAs via Progressive Self-Distillation
+### 3.30 [2026-09-22] SnapFlow: One-Step Action Generation for Flow-Matching VLAs via Progressive Self-Distillation
 
 * **论文信息**：`arXiv:2604.05656` (2026-04)
 * **核心关键词**：Flow-Matching VLA、1-NFE Action Generation、Progressive Self-Distillation、Chord Velocity Matching
@@ -1744,7 +1769,7 @@ $$
 
 ---
 
-### 2.31 [2026-09-22] LightKV: Make Your LVLM KV Cache More Lightweight
+### 3.31 [2026-09-22] LightKV: Make Your LVLM KV Cache More Lightweight
 
 * **论文信息**：`arXiv:2605.00789` (2026-05)
 * **核心关键词**：LVLM KV Cache Compression、Cross-Modality Message Passing、Prompt-Guided Visual Aggregation
@@ -1804,7 +1829,7 @@ $$
 
 ---
 
-### 2.32 [2026-09-22] LoopMTP: A Looped Transformer Guided by Latent Multi-Token Prediction
+### 3.32 [2026-09-22] LoopMTP: A Looped Transformer Guided by Latent Multi-Token Prediction
 
 * **论文信息**：`arXiv:2608.03624` (2026-08)
 * **核心关键词**：Looped Transformer、Latent Multi-Token Prediction (MTP)、Progressive Horizon Supervision
@@ -1852,7 +1877,7 @@ $$
 
 ---
 
-### 2.33 [2026-09-22] ROAD-VLA: Robust Online Adaptation via Self-Distillation for Vision-Language-Action Models
+### 3.33 [2026-09-22] ROAD-VLA: Robust Online Adaptation via Self-Distillation for Vision-Language-Action Models
 
 * **论文信息**：`arXiv:2606.25800` (2026-06)
 * **核心关键词**：Online VLA Adaptation、Advantage-Guided Self-Distillation、Dense Action Supervision
@@ -1906,7 +1931,7 @@ $$
 
 ---
 
-### 2.34 [2026-09-21] DeepLoop: Depth Scaling for Looped Transformers
+### 3.34 [2026-09-21] DeepLoop: Depth Scaling for Looped Transformers
 
 * **论文信息**：`arXiv:2607.13491` (2026-07)
 * **核心关键词**：Looped Transformers、Residual-Scaling Problem、Coherent Variance Growth、Depth Scaling Law
@@ -1968,7 +1993,7 @@ $$
 
 ---
 
-### 2.35 [2026-09-21] RotateK: Rotation-Aligned Key Channel Pruning for Vision-Language Models
+### 3.35 [2026-09-21] RotateK: Rotation-Aligned Key Channel Pruning for Vision-Language Models
 
 * **论文信息**：`arXiv:2605.19218` (2026-05)
 * **核心关键词**：Key Channel Pruning、Orthogonal Rotation Alignment、Vision-Language Models (VLMs)、Head-Dimension Compression
@@ -2032,7 +2057,7 @@ $$
 
 ---
 
-### 2.36 [2026-09-21] Self-OPD: On-Policy Distillation for Flow Matching Models without Teacher
+### 3.36 [2026-09-21] Self-OPD: On-Policy Distillation for Flow Matching Models without Teacher
 
 * **论文信息**：`arXiv:2608.26872` (2026-08)
 * **核心关键词**：Teacher-Free Flow Distillation、Stochastic SDE Branching、All-Branch Pull-Push Objective
@@ -2086,7 +2111,7 @@ $$
 
 ---
 
-### 2.37 [2026-09-21] MoE-FM: Towards Faster Language Model Inference Using Mixture-of-Experts Flow Matching
+### 3.37 [2026-09-21] MoE-FM: Towards Faster Language Model Inference Using Mixture-of-Experts Flow Matching
 
 * **论文信息**：`arXiv:2604.15009` (2026-04)
 * **核心关键词**：Mixture-of-Experts Flow Matching、Piecewise-Linear Vector Fields、Latent Flow Language Models
@@ -2137,7 +2162,7 @@ $$
 
 ---
 
-### 2.38 [2026-09-20] SHIFT-LLM: Distribution Shift Correction in Depth-Pruned LLMs
+### 3.38 [2026-09-20] SHIFT-LLM: Distribution Shift Correction in Depth-Pruned LLMs
 
 * **论文信息**：`arXiv:2608.25068` (2026-08)
 * **核心关键词**：Depth Pruning、Distribution Shift Correction、Linear Residual Adapters (LRA)、Closed-Form Ridge Regression、Weight Folding
@@ -2202,7 +2227,7 @@ $$
 
 ---
 
-### 2.39 [2026-09-20] ModularRSI: Modular and Generalizable Recursive Harness Self-Improvement
+### 3.39 [2026-09-20] ModularRSI: Modular and Generalizable Recursive Harness Self-Improvement
 
 * **论文信息**：`arXiv:2609.14857` (2026-09)
 * **核心关键词**：Modular Agent Harness、Compositional RSI、Interface-Constrained Evolution、Cross-Domain Generalization
@@ -2260,7 +2285,7 @@ $$
 
 ---
 
-### 2.40 [2026-09-20] Flow-OPD: On-Policy Distillation for Flow Matching Models
+### 3.40 [2026-09-20] Flow-OPD: On-Policy Distillation for Flow Matching Models
 
 * **论文信息**：`arXiv:2605.08063` (2026-05)
 * **核心关键词**：Flow Matching、On-Policy Distillation、Velocity Field Alignment、Exposure Bias Mitigation
@@ -2318,7 +2343,7 @@ $$
 
 ---
 
-### 2.41 [2026-09-19] WRP: Forward-Free LLM Depth Pruning via Weight Redundancy
+### 3.41 [2026-09-19] WRP: Forward-Free LLM Depth Pruning via Weight Redundancy
 
 * **论文信息**：`arXiv:2609.09883` (2026-09)
 * **核心关键词**：Forward-Free Depth Pruning、Weight Redundancy、Spectral Subspace Alignment、Calibration-Free Layer Dropping
@@ -2385,7 +2410,7 @@ $$
 
 ---
 
-### 2.42 [2026-09-19] KVzap: Fast Input-Adaptive KV Cache Compression
+### 3.42 [2026-09-19] KVzap: Fast Input-Adaptive KV Cache Compression
 
 * **论文信息**：`arXiv:2601.07891` (2026-01)
 * **核心关键词**：Input-Adaptive KV Compression、Dynamic Budget Allocation、Long-Context Inference、Zero-Overhead Gating
@@ -2447,7 +2472,7 @@ $$
 
 ---
 
-### 2.43 [2026-09-19] Motus2: Self-Evolving General World Models for Dexterous Manipulation
+### 3.43 [2026-09-19] Motus2: Self-Evolving General World Models for Dexterous Manipulation
 
 * **论文信息**：`arXiv:2608.30237` (2026-08)
 * **核心关键词**：Embodied World Models、Dexterous Manipulation、Contact-Rich Dynamics、Self-Evolving Policy-Model Co-Loop
